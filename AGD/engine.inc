@@ -1,9 +1,10 @@
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; Game engine code 
-; Arcade Game Designer.
-; (C) 2008 - 2018 Jonathan Cauldwell.
-; ZX Spectrum Engine v0.7.
-; v0.U4X - converted to 6809 - Pere Serrat - 2018-09-07	-	free 5249 bytes
+; Arcade Game Designer
+; (C) 2008 - 2018 Jonathan Cauldwell
+; ZX Spectrum Engine v0.7
+; converted to 6809 by Pere Serrat
+; debugged and enhanced by Kees van Oss and Pere Serrat - v0.U7C5 - 2018-10-06
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; Global definitions.																				; Global definitions.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
@@ -19,13 +20,13 @@ ENDXX		equ	MAP+768						; e600 - *must* be $e600
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; Variables put into 1st RAM PAGE to allow for direct addressing mode
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-joyVal	equ	$00							; fcb	$00																					; joyval defb 0              ; joystick reading.
-frmNo		equ	$01							; fcb	$00																					; frmno  defb 0              ; selected frame.
+joyVal	equ	$00							; fcb	$00											; joy/Keybd reading				; joyval defb 0              ; joystick reading.
+frmNo		equ	$01							; fcb	$00											; selected frame					; frmno  defb 0              ; selected frame.
 loopA		equ	$02							; fcb	$00											; variable counterA				; loopa  equ 23681           ; loop counter system variable.
-																											; loopb  equ 23728            ; loop counter system variable.
-																											; loopc  equ 23729            ; loop counter system variable.
+loopB		equ	$03							; fcb $00											; loopb  equ 23728            ; loop counter system variable.
+llopC		equ	$04							; fcb $00											; loopc  equ 23729            ; loop counter system variable.
 varA		equ	$05							; fcb	$00											; variable							; vara   defb 0              ; general-purpose variable.
-																											; varb   defb 0               ; general-purpose variable.
+varB		equ	$06							; fcb $00											; varb   defb 0               ; general-purpose variable.
 varC		equ	$07							; fcb	$00											; variable							; varc   defb 0              ; general-purpose variable.
 varD		equ	$08							; fcb	$00											; variable							; vard   defb 0              ; general-purpose variable.
 varE		equ	$09							; fcb	$00											; variable							; vare   defb 0              ; general-purpose variable.
@@ -33,82 +34,87 @@ varF		equ	$0a							; fcb	$00											; variable							; varf   defb 0        
 varG		equ	$0b							; fcb	$00											; variable							; varg   defb 0              ; general-purpose variable.
 varH		equ	$0c							; fcb	$00											; variable							; varh   defb 0              ; general-purpose variable.
 varI		equ	$0d							; fcb	$00											; variable							; vari   defb 0              ; general-purpose variable.
-																											; varj   defb 0               ; general-purpose variable.
+varJ		equ	$0e							; fcb	$00											; varj   defb 0               ; general-purpose variable.
 varK		equ	$0f							; fcb	$00											; number of crystals				; vark   defb 0              ; general-purpose variable.
 varL		equ	$10							; fcb	$00											; variable							; varl   defb 0              ; general-purpose variable.
-																											; varm   defb 0               ; general-purpose variable.
-																											; varn   defb 0               ; general-purpose variable.
+varM		equ	$11							; fcb $00											; varm   defb 0               ; general-purpose variable.
+varN		equ	$12							; fcb	$00											; varn   defb 0               ; general-purpose variable.
 varO		equ	$13							; fcb	$00											; variable							; varo   defb 0              ; general-purpose variable.
 varP		equ	$14							; fcb	$00											; variable							; varp   defb 0              ; general-purpose variable.
-																											; varq   defb 0               ; general-purpose variable.
-																											; varr   defb 0               ; general-purpose variable.
-																											; vars   defb 0               ; general-purpose variable.
-																											; vart   defb 0               ; general-purpose variable.
-																											; varu   defb 0               ; general-purpose variable.
-																											; varv   defb 0               ; general-purpose variable.
-																											; varw   defb 0               ; general-purpose variable.
-																											; varz   defb 0               ; general-purpose variable.
+varQ		equ	$15							; fcb	$00											; varq   defb 0               ; general-purpose variable.
+varR		equ	$16							; fcb	$00											; varr   defb 0               ; general-purpose variable.
+varS		equ	$17							; fcb $00											; vars   defb 0               ; general-purpose variable.
+varT		equ	$18							; fcb	$00											; vart   defb 0               ; general-purpose variable.
+varU		equ	$19							; fcb	$00											; varu   defb 0               ; general-purpose variable.
+varV		equ	$1a							; fcb	$00											; varv   defb 0               ; general-purpose variable.
+varW	 	equ	$1b							; fcb	$00											; varw   defb 0               ; general-purpose variable.
+varZ		equ	$1c							; fcb	$00											; varz   defb 0               ; general-purpose variable.
 contrl	equ	$1d							; fcb	$00											; control, 0=KBd, 1=JoyStck	; contrl defb 0              ; control, 0 = keyboard, 1 = Kempston, 2 = Sinclair, 3 = Mouse.
 charX		equ	$1e							; fcb	$00           								; cursor X position.				; charx  defb 0              ; cursor x position.
 charY		equ	$1f							; fcb	$00           								; cursor Y position.				; chary  defb 0              ; cursor y position.
 clock		equ	$20							; fcb	$00											; last clock value read			; clock  defb 0              ; last clock reading.
-
-nexLev	equ	$22							; fcb	$00             							; next level flag.				; nexlev defb 0              ; next level flag.
-restFl	equ	$23							; fcb	$00             							; restart screen flag			; restfl defb 0              ; restart screen flag.
-deadF		equ	$24							; fcb	$00            							; dead flag.						; deadf  defb 0              ; dead flag.
-gamWon	equ	$25							; fcb	$00											; game won flag.					; gamwon defb 0              ; game won flag.
-dispX		equ	$26							; fcb	$00											; screen X position.				; dispx  defb 0              ; cursor x position.
-dispY		equ	$27							; fcb	$00											; screen Y position.				; dispy  defb 0              ; cursor y position.
-bWid		equ	$28							; fcb	$00																					; bwid   defb 0              ; box/menu width.
-bLen		equ	$29							; fcb	$00																					; blen   defb 0              ; box/menu height.
-bTop		equ	$2a							; fcb	$00																					; btop   defb 0              ; box coordinates.
-bLft		equ	$2b							; fcb	$00																					; blft   defb 0
-sndTyp	equ	$2c							; fcb	$00											; type of sound to be produced; sndtyp defb 0
-comByt	equ	$2d							; fcb	$00											; byte type compressed			; combyt defb 0              ; byte type compressed.
-comCnt	equ	$2e							; fcb	$00											; compression counter			; comcnt defb 0              ; compression counter.
-subUnit	equ	$2f							; fcb	$00											; value to be subtracted
-cocoFlg	equ	$30							; fcb	$00											; CoCo machine flag
-scanOff	equ	$31							; fcb	$00											; offset to add to pointer while scanning keyboard
-prtMod	equ	$32							; fcb	$00											; print mode, 0 = std, 1 = double-height.	; prtmod defb 0            ; print mode, 0 = standard, 1 = double-height.
+nexLev	equ	$21							; fcb	$00             							; next level flag.				; nexlev defb 0              ; next level flag.
+restFl	equ	$22							; fcb	$00             							; restart screen flag			; restfl defb 0              ; restart screen flag.
+deadF		equ	$23							; fcb	$00            							; dead flag.						; deadf  defb 0              ; dead flag.
+gamWon	equ	$24							; fcb	$00											; game won flag.					; gamwon defb 0              ; game won flag.
+dispX		equ	$25							; fcb	$00											; screen X position.				; dispx  defb 0              ; cursor x position.
+dispY		equ	$26							; fcb	$00											; screen Y position.				; dispy  defb 0              ; cursor y position.
+bWid		equ	$27							; fcb	$00											; box/menu width.					; bwid   defb 0              ; box/menu width.
+bLen		equ	$28							; fcb	$00											; box/menu height					; blen   defb 0              ; box/menu height.
+bTop		equ	$29							; fcb	$00											; box coordinates					; btop   defb 0              ; box coordinates.
+bLft		equ	$2a							; fcb	$00											; box/menu left					; blft   defb 0
+sndTyp	equ	$2b							; fcb	$00											; type of sound to be produced; sndtyp defb 0
+comByt	equ	$2c							; fcb	$00											; byte type compressed			; combyt defb 0              ; byte type compressed.
+comCnt	equ	$2d							; fcb	$00											; compression counter			; comcnt defb 0              ; compression counter.
+subUnit	equ	$2e							; fcb	$00											; value to be subtracted
+cocoFlg	equ	$2f							; fcb	$00											; CoCo machine flag
+scanOff	equ	$30							; fcb	$00											; offset to add to pointer while scanning keyboard
+seed		equ	$31							; fcb $00											; seed   defb 0              	; seed for random numbers.
+seed3		equ	$32							; fcb $00											; seed3  defb 0
+prtMod	equ	$33							; fcb	$00											; print mode, 0 = std, 1 = double-height.	; prtmod defb 0            ; print mode, 0 = standard, 1 = double-height.
+NUMVAR	equ	prtMod+1
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 grBase	equ	$50							; fdb	#0000											; graphics (posx, posy)			; grbase defw 15360          ; graphics base address.
 pbPtr		equ	$52							; fdb	$0000											; Add a new variable putblock pointer		; pbptr    = $96            
 tmp		equ	$54							; fdb	$0000											; used in Adventure mode
 ogPtr		equ	$56							; fdb	$0000											; pointer to sprite table		; ogptr  defw 0              ; original sprite pointer.
 fontPtr	equ	$58							; fdb	$0000											; pointer to font table - (23606) in ZX-Spectrum
+spPtr		equ	$5a							; fdb $0000	- spawned sprite pointer						; spptr  defw 0              ; spawned sprite pointer.
+bufAddr	equ	$5c							; fdb $0000 - new sprites routine buffer address
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ;	*** THESE ARE ASSIGNED A VALUE IN INITIALIZATION ROUTINE ***
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 																											; Pixel versions of wintop, winlft, winhgt, winwid.
-																																					; wntopx defb (8 * WINDOWTOP)
-																																					; wnlftx defb (8 * WINDOWLFT)
-																																					; wnbotx defb ((WINDOWTOP * 8) + (WINDOWHGT * 8) - 16)
-																																					; wnrgtx defb ((WINDOWLFT * 8) + (WINDOWWID * 8) - 16)
+wnTopX	equ	$6c							; fcb (8 * WINDOWTOP)																	; wntopx defb (8 * WINDOWTOP)
+wnLftX 	equ	$6d							; fcb (8 * WINDOWLFT)																	; wnlftx defb (8 * WINDOWLFT)
+wnBotX 	equ	$6e							; fcb ((WINDOWTOP * 8) + (WINDOWHGT * 8) - 16)									; wnbotx defb ((WINDOWTOP * 8) + (WINDOWHGT * 8) - 16)
+wnRgtX 	equ	$6f							; fcb ((WINDOWLFT * 8) + (WINDOWWID * 8) - 16)									; wnrgtx defb ((WINDOWLFT * 8) + (WINDOWWID * 8) - 16)
 scNo		equ	$70							; fcb	$00							; present screen number							; scno   defb 0              ; present screen number.
 varOpt	equ	$71							; fcb	$ff							; last option chosen from menu				; varopt defb 255            ; last option chosen from menu.
 numLif	equ	$72							; fcb	$03							; number of lives									; numlif defb 3              ; number of lives.
-																																					; varrnd defb 255            ; last random number.
-varObj	equ	$73							; fcb	254							; last object number								; varobj defb 254            ; last object number.
+varRnd	equ	$73							; fcb 255																					; varrnd defb 255            ; last random number.
+varObj	equ	$74							; fcb	254							; last object number								; varobj defb 254            ; last object number.
 																																					; varblk defb 255            ; block type.
-roomTb	equ	$74							; fcb	34								; room number										; roomtb defb 34                     ; room number.
+roomTb	equ	$75							; fcb	34								; room number										; roomtb defb 34             ; room number.
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; Don't change the order of these four.  Menu routine relies on winlft following wintop.
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-winTop	equ	$75							; fcb	WINDOWTOP					; top of window									; wintop defb WINDOWTOP      ; top of window.
-winLft	equ	$76							; fcb	WINDOWLFT					; left edge											; winlft defb WINDOWLFT      ; left edge.
-winHgt	equ	$77							; fcb	WINDOWHGT					; window height									; winhgt defb WINDOWHGT      ; window height.
-winWid	equ	$78							; fcb	WINDOWWID					; window width										; winwid defb WINDOWWID      ; window width.
-numOb		equ	$79							; fcb	NUMOBJ         			; number of objects in game.					; numob  defb NUMOBJ         ; number of objects in game.
+winTop	equ	$76							; fcb	WINDOWTOP					; top of window									; wintop defb WINDOWTOP      ; top of window.
+winLft	equ	$77							; fcb	WINDOWLFT					; left edge											; winlft defb WINDOWLFT      ; left edge.
+winHgt	equ	$78							; fcb	WINDOWHGT					; window height									; winhgt defb WINDOWHGT      ; window height.
+winWid	equ	$79							; fcb	WINDOWWID					; window width										; winwid defb WINDOWWID      ; window width.
+numOb		equ	$7a							; fcb	NUMOBJ         			; number of objects in game.					; numob  defb NUMOBJ         ; number of objects in game.
+xxxxx		equ	$7b							; WAITING to be USED
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; Make sure pointers are arranged in the same order as the data itself.
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-frmPtr	equ	$7a							; fdb	frmLst         			; sprite frames									; frmptr defw frmlst         ; sprite frames.
-blkPtr	equ	$7c							; fdb	chgFx							; block graphics									; blkptr defw chgfx          ; block graphics.
+frmPtr	equ	$7c							; fdb	frmLst         			; sprite frames									; frmptr defw frmlst         ; sprite frames.
+blkPtr	equ	$7e							; fdb	chgFx							; block graphics									; blkptr defw chgfx          ; block graphics.
 																																					; colptr defw bcol           ; address of char colours.
-proPtr	equ	$7e							; fdb	bProp							; address of char properties					; proptr defw bprop          ; address of char properties.
-scrPtr	equ	$80							; fdb	scDat							; address of screens								; scrptr defw scdat          ; address of screens.
-nmePtr	equ	$82							; fdb	nmeDat         			; enemy start positions							; nmeptr defw nmedat         ; enemy start positions.
-andeor	equ	$84							; fdb	$ff00							; values to use in AND - EOR
+proPtr	equ	$80							; fdb	bProp							; address of char properties					; proptr defw bprop          ; address of char properties.
+scrPtr	equ	$82							; fdb	scDat							; address of screens								; scrptr defw scdat          ; address of screens.
+nmePtr	equ	$84							; fdb	nmeDat         			; enemy start positions							; nmeptr defw nmedat         ; enemy start positions.
+andeor	equ	$86							; fdb	$ff00							; values to use in AND - EOR
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 dNotUs	equ	$97							; *** used for debouncing
 dNotUz	equ	$98							; *** the keyboard using jsr [$A000]
@@ -125,10 +131,16 @@ reg_H		equ	reg_HL						; 1st byte of HL
 reg_L		equ	reg_HL+1						; 2nd byte of HL
 reg_IX	equ	$a8							; pseudo IX ($a8-a9)
 reg_IY	equ	$aa							; pseudo IY ($aa-ab)
+reg_AX	equ	reg_IY						; re-use pseudo reg
+reg_AY	equ	reg_IY+1						; re-use pseudo reg
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 esp_BC	equ	$b0							; mirror register for reg_BC ($b0-b1)
+esp_B		equ	esp_BC						; mirror register for reg_B
+esp_C		equ	esp_BC+1						; mirror register for reg_C
 esp_DE	equ	$b2							; mirror register for reg_DE ($b2-b3)
 esp_HL	equ	$b4							; mirror register for reg_HL ($b4-b5)
+esp_H		equ	esp_HL						; mirror register for reg_H
+esp_L		equ	esp_HL+1						; mirror register for reg_L
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; Block characteristics.																			; Block characteristics.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
@@ -137,10 +149,10 @@ WALL   equ PLATFM + 1      				; solid wall.										; WALL   equ PLATFM + 1   
 LADDER equ WALL + 1        				; ladder.											; LADDER equ WALL + 1        ; ladder.
 FODDER equ LADDER + 1      				; fodder block.									; FODDER equ LADDER + 1      ; fodder block.
 DEADLY equ FODDER + 1      				; deadly block.									; DEADLY equ FODDER + 1      ; deadly block.
-; CUSTOM equ DEADLY + 1      				; custom block.									; CUSTOM equ DEADLY + 1      ; custom block.
-; WATER  equ CUSTOM + 1      				; water block.										; WATER  equ CUSTOM + 1      ; water block.
-; COLECT equ WATER + 1       				; collectable block.								; COLECT equ WATER + 1       ; collectable block.
-; NUMTYP equ COLECT + 1      				; number of types.								; NUMTYP equ COLECT + 1      ; number of types.
+CUSTOM equ DEADLY + 1      				; custom block.									; CUSTOM equ DEADLY + 1      ; custom block.
+WATER  equ CUSTOM + 1      				; water block.										; WATER  equ CUSTOM + 1      ; water block.
+COLECT equ WATER + 1       				; collectable block.								; COLECT equ WATER + 1       ; collectable block.
+NUMTYP equ COLECT + 1      				; number of types.								; NUMTYP equ COLECT + 1      ; number of types.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; Sprites																								; Sprites.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
@@ -204,7 +216,6 @@ DBox		ldx	#font-256					; ensure
 			stx	<fontPtr						; font access
 			ldx	#msgDat						; point to messaqes								; dbox   ld hl,msgdat        ; pointer to messages.
 			stx	<reg_HL						; put into pseudoreg
-			tfr	a,b							; pass message # to regB
 			jsr	GetWrd						; point to text for that message				; 		 call getwrd         ; get message number.
 			pshs	x								; save pointer to that message				; 		 push hl             ; store pointer to message.
 			ldd	#$0100						; height and max width							; 		 ld d,1              ; height.
@@ -263,7 +274,7 @@ DBox8		dec	<reg_D						; decrement number of items found			; dbox8  dec d       
 																											; 		 ld (grbase),hl      ; set up for text display.
 			puls	x								; get pointer to text							; 		 pop hl              ; restore message pointer.
 			lda	<bTop							; set box top										; 		 ld a,(btop)         ; box top.
-			sta	<dispY							; as Y coordinate									; 		 ld (dispx),a        ; set display coordinate.
+			sta	<dispY						; as Y coordinate									; 		 ld (dispx),a        ; set display coordinate.
 																											; 		 xor a               ; start at object zero.
 			clr	<comByt						; start at object zero							; 		 ld (combyt),a       ; store number of object in combyt.
 DBox2		lda	<comByt						; get object number								; dbox2  ld a,(combyt)       ; get object number.
@@ -271,7 +282,7 @@ Mod0		jsr	Always						; selfmodified code (calls InvDis)			; mod0   call always 
 			lbne	DBox13						; object not in Inv, go for next one		; 		 jp nz,dbox13        ; not in inventory, skip this line.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 			lda	<bLft							; get box left										; 		 ld a,(blft)         ; box left.
-			sta	<dispX							; set as X coordinate							; 		 ld (dispy),a        ; set left display position.
+			sta	<dispX						; set as X coordinate							; 		 ld (dispy),a        ; set left display position.
 			lda	<bWid							; get box width									; 		 ld a,(bwid)         ; box width.
 			sta	<reg_B						; put in reg_B										; 		 ld b,a              ; store width.
 DBox0		lda	,x								; get a char										; dbox0  ld a,(hl)           ; get character.
@@ -329,7 +340,7 @@ DBox1		leax	1,x							; skip read char									; dbox1  inc hl              ; sk
 			jsr	DBoxf							; fill box till end of right side			; 		 call dboxf          ; fill box out to right side.
 DBox10																									; dbox10 ld a,(dispx)        ; x coordinate.
 																											; 		 inc a               ; down a line.
-			inc	<dispY							; increment Y coordinate						; 		 ld (dispx),a        ; next position.
+			inc	<dispY						; increment Y coordinate						; 		 ld (dispx),a        ; next position.
 			bra	DBox2							; go for next line								; 		 jp dbox2            ; next line.
 DBox7		lda	<reg_B						; get remaining chars							; dbox7  ld a,b              ; chars remaining.
 																											; 		 and a               ; are any left?
@@ -339,7 +350,7 @@ DBox7		lda	<reg_B						; get remaining chars							; dbox7  ld a,b              
 ; Drawn the box menu, now select option														; Drawn the box menu, now select option.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 DBox11	lda	<bTop							; get box top										; dbox11 ld a,(btop)         ; box top.
-			sta	<dispY							; put as Y coordinate							; 		 ld (dispx),a        ; set bar position.
+			sta	<dispY						; put as Y coordinate							; 		 ld (dispx),a        ; set bar position.
 DBox14	jsr	JoyKey						; read Joy-Kbd										; dbox14 call joykey         ; get controls.
 			anda	#95							; anything pressed?								; 		 and 31              ; anything pressed?
 			bne	DBox14						; yes, debounce it								; 		 jr nz,dbox14        ; yes, debounce it.
@@ -356,7 +367,7 @@ Mod1		jmp	FStd							; selfmodified code	(calls FOpt = exit)	; mod1   jp nz,fstd
 			lda	<joyVal						; get selected choice							; 		 ld a,(joyval)       ; joystick reading.
 			anda	#8								; was Up?											; 		 and 8               ; going up?
 			bne	DBoxu							; yes, go Up										; 		 jr nz,dboxu         ; yes, go up.
-			lda	<dispY							; get bar vertical position					; 		 ld a,(dispx)        ; vertical position of bar.
+			lda	<dispY						; get bar vertical position					; 		 ld a,(dispx)        ; vertical position of bar.
 			inca									; look next one									; 		 inc a               ; look down.
 			ldx	#bTop							; point to box top								; 		 ld hl,btop          ; top of box.
 			suba	,x								; subtract											; 		 sub (hl)            ; find distance from top.
@@ -364,16 +375,16 @@ Mod1		jmp	FStd							; selfmodified code	(calls FOpt = exit)	; mod1   jp nz,fstd
 			cmpa	,x								; are we at the end?								; 		 cp (hl)             ; are we at end?
 			beq	DBox14						; yes, discard command							; 		 jp z,dbox14         ; yes, go no further.
 																											; 		 ld hl,dispx         ; coordinate.
-			inc	<dispY							; move bar down									; 		 inc (hl)            ; move bar.
+			inc	<dispY						; move bar down									; 		 inc (hl)            ; move bar.
 			bra	DBox14						; loopback											; 		 jr dbox14           ; continue.
-DBoxu		lda	<dispY							; get bar vertical position					; dboxu  ld a,(dispx)        ; vertical position of bar.
+DBoxu		lda	<dispY						; get bar vertical position					; dboxu  ld a,(dispx)        ; vertical position of bar.
 																											; 		 ld hl,btop          ; top of box.
 			cmpa	<bTop							; are we at top?									; 		 cp (hl)             ; are we at the top?
 			beq	DBox14						; yes, discard command							; 		 jp z,dbox14         ; yes, go no further.
 																											; 		 ld hl,dispx         ; coordinate.
-			dec	<dispY							; move bar up										; 		 dec (hl)            ; move bar.
+			dec	<dispY						; move bar up										; 		 dec (hl)            ; move bar.
 			bra	DBox14						; loopback											; 		 jr dbox14           ; continue.
-FStd		lda	<dispY							; get bar vertical position					; fstd   ld a,(dispx)        ; bar position.
+FStd		lda	<dispY						; get bar vertical position					; fstd   ld a,(dispx)        ; bar position.
 																											; 		 ld hl,btop          ; top of menu.
 			suba	<bTop							; find selected option							; 		 sub (hl)            ; find selected option.
 			sta	<varOpt						; store into variable							; 		 ld (varopt),a       ; store the option.
@@ -394,7 +405,7 @@ DBox15	puls	x,pc							; restore pointer and return					; dbox15 pop hl         
 																											; 		 ret
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 DBar		lda	<bLft							; get box left										; dbar   ld a,(blft)         ; box left.
-			sta	<dispX							; put as X coordinate							; 		 ld (dispy),a        ; set display coordinate.
+			sta	<dispX						; put as X coordinate							; 		 ld (dispy),a        ; set display coordinate.
 			jsr	GPrad							; get printing address							; 		 call gprad          ; get printing address.
 			ldx	<grBase						; get calculated pointer						; 		 ex de,hl            ; flip into hl register pair.
 			stx	<reg_HL						; update pseudoreg
@@ -436,7 +447,7 @@ InvDis	ldu	<reg_DE						; get pseudoreg DE (again)						; invdis push hl        
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; Find option selected																				; Find option selected.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-FOpt		lda	<dispY							; get Y coordinate								; fopt   ld a,(dispx)
+FOpt		lda	<dispY						; get Y coordinate								; fopt   ld a,(dispx)
 																											; 		 ld hl,btop          ; top of menu.
 			suba	<bTop							; subtract the one for the top element		; 		 sub (hl)            ; find selected option.
 			inca									; increment (0->1)								; 		 inc a               ; object 0 needs one iteration, 1 needs 2 and so on.
@@ -511,7 +522,7 @@ XSpr0		sta	,x+							; clean one byte									; 		 inc hl              ; move to
 ; Initialise all objects.																			; Initialise all objects.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 IniOb		ldx	#objDta+36					; point to Object data table					; iniob  ld ix,objdta        ; objects table.
-			ldb	<numOb							; number of objects								; 		 ld a,(numob)        ; number of objects in the game.
+			ldb	<numOb						; number of objects								; 		 ld a,(numob)        ; number of objects in the game.
 																											; 		 ld b,a              ; loop counter.
 																											; 		 ld de,39            ; distance between objects.
 IniOb0	lda	,x								; start screen										; iniob0 ld a,(ix+36)        ; start screen.
@@ -550,8 +561,9 @@ VSync2																									; vsync2 ld a,c            ; get speaker value.
 			ldb	<reg_B						; get loop counter								; 		 ld c,a              ; store value for next time.
 			stb	<reg_D						; save in reg_D									; 		 ld d,b              ; store loop counter.
 VSync3	ldb	$0113							; get current clock								; vsync3 ld hl,clock       ; previous clock setting.
-			cmpb	<clock							; compare to previous clock value			; 		 ld a,(23672)        ; current clock setting.
-			bne	VSync4						; if not equal exit loop						; 		 cp (hl)             ; subtract last reading.			
+			cmpb	<clock						; compare to previous clock value			; 		 ld a,(23672)        ; current clock setting.
+			blo	VSync4						; if clock is greater exit loop (never)	; 		 cp (hl)             ; subtract last reading.
+													; was bne, later brn to avoid effect
 			dec	<reg_B						; decrement inner loop							; 		 jp nz,vsync4        ; yes, no more processing please.
 			bne	VSync3						; not zero? loopback								; 		 djnz vsync3         ; loop.
 			ldb	<reg_D						; get outer loop counter
@@ -560,15 +572,16 @@ VSync3	ldb	$0113							; get current clock								; vsync3 ld hl,clock       ; p
  			bne	VSync2						; not zero? continue sound						; 		 djnz vsync2         ; continue noise.
 VSync4	lda	<reg_D						; get last used outer counter					; vsync4 ld a,d            ; where we got to.
 VSynca	sta	<sndTyp						; save for next time								; vsynca ld (sndtyp),a     ; remember for next time.
-VSync1	lda	$0113							; get actual timer low value					; vsync1 ld a,(23672)      ; clock low.
-			rora									; is it odd?										; 		 rra                 ; rotate bit into carry.
-			bcc	VSync0						; no, skip next									
+VSync1	
+;;T			lda	$0113							; get actual timer low value					; vsync1 ld a,(23672)      ; clock low.
+;;T			rora									; is it odd?										; 		 rra                 ; rotate bit into carry.
+;;T			bcc	VSync0						; no, skip next									
 			jsr	VSync5						; yes, go for shrapnel							; 		 call c,vsync5       ; time to play sound and do shrapnel/ticker stuff.
 																											; 		 ld hl,clock         ; last clock reading.
 VSync0	lda	$0113							; get actual timer								; vsync0 ld a,(23672)      ; current clock reading.
-			cmpa	<clock							; compare to last read							; 		 cp (hl)             ; are they the same?
+			cmpa	<clock						; compare to last read							; 		 cp (hl)             ; are they the same?
 			beq	VSync0						; yes, wait until clock changes				; 		 jr z,vsync0         ; yes, wait until clock changes.
-			sta	<clock							; update last read value						; 		 ld (hl),a           ; set new clock reading.
+			sta	<clock						; update last read value						; 		 ld (hl),a           ; set new clock reading.
 			rts									; return												; 		 ret
 																											; ;vsync5 call plsnd       ; play sound.
 VSync5	jmp	ProShr						; shrapnel and others							; vsync5 jp proshr         ; shrapnel and stuff.
@@ -586,7 +599,7 @@ VSync7	lda	$0113							; get timer											; vsync7 ld a,r              ; get 
 			anda	#%11111100					; clear unused 2 low bits
 			sta	$ff20							; send to DAC										; 		 out (254),a         ; write to speaker.
 			lda	$0113							; get actual timer								; 		 ld a,(23672)        ; current clock setting.
-			cmpa	<clock							; same than last one								; 		 cp (hl)             ; subtract last reading.
+			cmpa	<clock						; same than last one								; 		 cp (hl)             ; subtract last reading.
 			bne	VSync8						; no, exit loop									; 		 jp nz,vsync8        ; yes, no more processing please.
 			lda	,s								; get parameter again							; 		 ld a,b
 			anda	#127							; reset bit 7 (negative)						; 		 and 127
@@ -628,7 +641,7 @@ ReDrw0	lda	,x								; get old sprite type							; redrw0 ld a,(ix+0)         ; 
 ReDrw1																									; redrw1 ld de,TABSIZ        ; distance to next odd/even entry.
 			leax	TABSIZ,x						; point to next sprite							; 		 add ix,de           ; next sprite.
 			decb									; decrement counter
-			bne	ReDrw0						; jnot yet done? go for next one				; 		 djnz redrw0         ; repeat for remaining sprites.
+			bne	ReDrw0						; not yet done? go for next one				; 		 djnz redrw0         ; repeat for remaining sprites.
 Rpblc1	jsr	DShrp							; redraw Shrapnel									; rpblc1 call dshrp          ; redraw shrapnel.
 	IF AFLAG
 			jsr	RBloc							; draw blocks for this screen
@@ -697,26 +710,30 @@ Cls01		std	,x++							; paint 2 bytes									; 		 ld bc,6144          ; bytes t
 ;																											; 		 ret
 ;																											; endpal equ $
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-													; FOR SHRAPNEL										; fdchk  ld a,(hl)           ; fetch cell.
-																											; 		 cp FODDER           ; is it fodder?
-																											; 		 ret nz              ; no.
-																											; 		 ld (hl),0           ; rewrite block type.
-																											; 		 push hl             ; store pointer to block.
-																											; 		 ld de,MAP           ; address of map.
-																											; 		 and a               ; clear carry flag for subtraction.
-																											; 		 sbc hl,de           ; find simple displacement for block.
-																											; 		 ld a,l              ; low byte is y coordinate.
-																											; 		 and 31              ; column position 0 - 31.
-																											; 		 ld (dispy),a        ; set up y position.
-																											; 		 add hl,hl           ; multiply displacement by 8.
-																											; 		 add hl,hl
-																											; 		 add hl,hl
-																											; 		 ld a,h              ; x coordinate now in h.
-																											; 		 ld (dispx),a        ; set the display coordinate.
-																											; 		 xor a               ; block to write.
-																											; 		 call pattr          ; write block.
-																											; 		 pop hl              ; restore block pointer.
-																											; 		 ret
+; TO BE CONVERTED - #11 - T01A - DONE
+FdChk		lda	,x								; get cell code									; fdchk  ld a,(hl)           ; fetch cell.
+			cmpa	#FODDER						; is it FODDER?									; 		 cp FODDER           ; is it fodder?
+			bne	FdChkEx						; no, return										; 		 ret nz              ; no.
+			clr	,x								; delete fodder to code $00					; 		 ld (hl),0           ; rewrite block type.
+			pshs	x								; save MAP pointer								; 		 push hl             ; store pointer to block.
+			tfr	x,d							; pass address to regD							; 		 ld de,MAP           ; address of map.
+			subd	#MAP							; subtract MAP beginning						; 		 and a               ; clear carry flag for subtraction.
+			tfr	d,x							; send block offset to regX					; 		 sbc hl,de           ; find simple displacement for block.
+													; low byte is X coordinate						; 		 ld a,l              ; low byte is y coordinate.
+			andb	#31							; ensure valid value								; 		 and 31              ; column position 0 - 31.
+			stb	<dispX						; to variable for coord X						; 		 ld (dispy),a        ; set up y position.
+			tfr	x,d							; get offset again
+			lslb									; multiply											; 		 add hl,hl           ; multiply displacement by 8.
+			rola									; displacement
+			lslb									; by													; 		 add hl,hl
+			rola									; eight
+			lslb									;														; 		 add hl,hl
+			rola									; Y coordinate										; 		 ld a,h              ; x coordinate now in h.
+			sta	<dispY						; into variable 									; 		 ld (dispx),a        ; set the display coordinate.
+			clra									; set null block code							; 		 xor a               ; block to write.
+			jsr	PAttr							; write it														; 		 call pattr          ; write block.
+			puls	x								; restore MAP pointer							; 		 pop hl              ; restore block pointer.
+FdChkEx	rts									; return												; 		 ret
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; Colour a sprite																						; Colour a sprite.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
@@ -775,50 +792,56 @@ Cls01		std	,x++							; paint 2 bytes									; 		 ld bc,6144          ; bytes t
 																											; txtscr defw 16406
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 																											; Specialist routines.
-; Process shrapnel 		(*** UNDER CONSTRUCTION ***)										; Process shrapnel.
+; Process shrapnel																					; Process shrapnel.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-ProShr																									; proshr ld ix,SHRAPN      ; table.
-																											; 		 ld b,NUMSHR         ; shrapnel pieces to process.
+; TO BE CONVERTED - #13 - VSync - DONE
+ProShr	pshs	y								; save sprite pointer
+			ldy	#SHRAPN						; point to table beginning						; proshr ld ix,SHRAPN      ; table.
+			ldb	#NUMSHR						; number of pieces								; 		 ld b,NUMSHR         ; shrapnel pieces to process.
 																											; 		 ld de,SHRSIZ        ; distance to next.
-																											; prosh0 ld a,(ix+0)       ; on/off marker.
-																											; 		 rla                 ; check its status.
-																											; proshx call nc,prosh1    ; on, so process it.
-																											; 		 add ix,de           ; point there.
-																											; 		 djnz prosh0         ; round again.
-																											; 		 jp scrly
-																											; prosh1 push bc           ; store counter.
-																											; 		 call plot           ; delete the pixel.
-																											; 		 ld a,(ix+0)         ; restore shrapnel type.
-																											; 		 ld hl,shrptr        ; shrapnel routine pointers.
-																											; 		 call prosh2         ; run the routine.
-																											; 		 call chkxy          ; check x and y are good before we redisplay.
-																											; 		 pop bc              ; restore counter.
+ProSh0	lda	,y								; get on-off/type flag							; prosh0 ld a,(ix+0)       ; on/off marker.
+			rola									; is it off?										; 		 rla                 ; check its status.
+ProShx	bcs	ProShy						; yes, skip next									; proshx call nc,prosh1    ; on, so process it.
+ProShmod	jsr	ProSh1						; process it
+ProShy	leay	SHRSIZ,y						; point to next slot								; 		 add ix,de           ; point there.
+			decb									; decrement counter
+			bne	ProSh0						; not yet done, loop								; 		 djnz prosh0         ; round again.
+			puls	y								; restore sprite pointer
+			lbra	Scrly							; go ticker routine								; 		 jp scrly
+ProSh1	pshs	b								; save counter										; prosh1 push bc           ; store counter.
+			jsr	Plot							; delete pixel										; 		 call plot           ; delete the pixel.
+			lda	,y								; get type											; 		 ld a,(ix+0)         ; restore shrapnel type.
+			ldx	#shrPtr						; point to routines table						; 		 ld hl,shrptr        ; shrapnel routine pointers.
+			jsr	ProSh2						; execute the requested one					; 		 call prosh2         ; run the routine.
+			jsr	ChkXY							; verify coordinates and display				; 		 call chkxy          ; check x and y are good before we redisplay.
+			puls	b								; restore counter									; 		 pop bc              ; restore counter.
 																											; 		 ld de,SHRSIZ        ; distance to next.
 			rts									; return												; 		 ret
-																											; prosh2 rlca              ; 2 bytes per address.
+ProSh2	asla									; double to calc offset							; prosh2 rlca              ; 2 bytes per address.
 																											; 		 ld e,a              ; copy to de.
 																											; 		 add hl,de           ; point to address of routine.
 																											; 		 ld a,(hl)           ; get address low.
 																											; 		 inc hl              ; point to second byte.
 																											; 		 ld h,(hl)           ; fetch high byte from table.
 																											; 		 ld l,a              ; put low byte in l.
-																											; 		 jp (hl)             ; jump to routine.
+			jmp	[a,x]							; execute sobroutine								; 		 jp (hl)             ; jump to routine.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; shrptr defw laser        ; laser.
-																											; 		 defw trail          ; vapour trail.
-																											; 		 defw shrap          ; shrapnel from explosion.
-																											; 		 defw dotl           ; horizontal starfield left.
-																											; 		 defw dotr           ; horizontal starfield right.
-																											; 		 defw dotu           ; vertical starfield up.
-																											; 		 defw dotd           ; vertical starfield down.
-																											; 		 defw ptcusr         ; user particle.
+shrPtr	fdb	Laser							; offset 0 - 0										; shrptr defw laser        ; laser.
+			fdb	Trail							; offset 2 - 1										; 		 defw trail          ; vapour trail.
+			fdb	Shrap 						; offset 4 - 2										; 		 defw shrap          ; shrapnel from explosion.
+			fdb	DotL  						; offset 6 - 3										; 		 defw dotl           ; horizontal starfield left.
+			fdb	DotR  						; offset 8 - 4										; 		 defw dotr           ; horizontal starfield right.
+			fdb	DotU  						; offset a - 5										; 		 defw dotu           ; vertical starfield up.
+			fdb	DotD  						; offset c - 6										; 		 defw dotd           ; vertical starfield down.
+			fdb	PtcUsr						; offset e - 7										; 		 defw ptcusr         ; user particle.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 																											; Explosion shrapnel.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; shrap  ld e,(ix+1)         ; get the angle.
+; TO BE CONVERTED - T03-4-5-6-7 - DONE
+Shrap		ldb	1,y							; angle is steps of 4 (offset)				; shrap  ld e,(ix+1)         ; get the angle.
 																											; 		 ld d,0              ; no high byte.
-																											; 		 ld hl,shrsin        ; shrapnel sine table.
-																											; 		 add hl,de           ; point to sine.
+			ldx	#shrSin						; point to table beginning						; 		 ld hl,shrsin        ; shrapnel sine table.
+			abx									; now to sine of desired offset				; 		 add hl,de           ; point to sine.
 																											; 		 ld e,(hl)           ; fetch value from table.
 																											; 		 inc hl              ; next byte of table.
 																											; 		 ld d,(hl)           ; fetch value from table.
@@ -826,178 +849,204 @@ ProShr																									; proshr ld ix,SHRAPN      ; table.
 																											; 		 ld c,(hl)           ; fetch value from table.
 																											; 		 inc hl              ; next byte of table.
 																											; 		 ld b,(hl)           ; fetch value from table.
-																											; 		 ld l,(ix+2)         ; x coordinate in hl.
-																											; 		 ld h,(ix+3)
-																											; 		 add hl,de           ; add sine.
-																											; 		 ld (ix+2),l         ; store new coordinate.
-																											; 		 ld (ix+3),h
-																											; 		 ld l,(ix+4)         ; y coordinate in hl.
-																											; 		 ld h,(ix+5)
-																											; 		 add hl,bc           ; add cosine.
-																											; 		 ld (ix+4),l         ; store new coordinate.
-																											; 		 ld (ix+5),h
-																											; 		 ret
-																											; dotl   dec (ix+5)          ; move left.
-																											; 		 ret
-																											; dotr   inc (ix+5)          ; move left.
-																											; 		 ret
-																											; dotu   dec (ix+3)          ; move up.
-																											; 		 ret
-																											; dotd   inc (ix+3)          ; move down.
-																											; 		 ret
+			ldb	2,y							; get decimals of Y coordinate				; 		 ld l,(ix+2)         ; x coordinate in hl.
+			lda	3,y							; get Y coordinate								; 		 ld h,(ix+3)
+			addd	,x								; add sine,decimals								; 		 add hl,de           ; add sine.
+			stb	2,y							; update decimals of Y cordinate				; 		 ld (ix+2),l         ; store new coordinate.
+			sta	3,y							; update Y coordinate							; 		 ld (ix+3),h
+			ldb	4,y							; get decimals of X coordinate				; 		 ld l,(ix+4)         ; y coordinate in hl.
+			lda	5,y							; get X coordinate								; 		 ld h,(ix+5)
+			addd	2,x							; add cosine,decimals							; 		 add hl,bc           ; add cosine.
+			stb	4,y							; update decimals of X coordinate			; 		 ld (ix+4),l         ; store new coordinate.
+			sta	5,y							; update X coordinate							; 		 ld (ix+5),h
+			rts									; return												; 		 ret
+DotL		dec	5,y																					; dotl   dec (ix+5)          ; move left.
+			rts																							; 		 ret
+DotR		inc	5,y																					; dotr   inc (ix+5)          ; move right.
+			rts																							; 		 ret
+DotU		dec	3,y																					; dotu   dec (ix+3)          ; move up.
+			rts																							; 		 ret
+DotD		inc	3,y																					; dotd   inc (ix+3)          ; move down.
+			rts																							; 		 ret
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 																											; Check coordinates are good before redrawing at new position.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; chkxy  ld hl,wntopx        ; window top.
-																											; 		 ld a,(ix+3)         ; fetch shrapnel coordinate.
-																											; 		 cp (hl)             ; compare with top window limit.
-																											; 		 jr c,kilshr         ; out of window, kill shrapnel.
-																											; 		 inc hl              ; left edge.
-																											; 		 ld a,(ix+5)         ; fetch shrapnel coordinate.
-																											; 		 cp (hl)             ; compare with left window limit.
-																											; 		 jr c,kilshr         ; out of window, kill shrapnel.
-																											; 		 inc hl              ; point to bottom.
-																											; 		 ld a,(hl)           ; fetch window limit.
-																											; 		 add a,15            ; add height of sprite.
-																											; 		 cp (ix+3)           ; compare with shrapnel x coordinate.
-																											; 		 jr c,kilshr         ; off screen, kill shrapnel.
-																											; 		 inc hl              ; point to right edge.
-																											; 		 ld a,(hl)           ; fetch shrapnel y coordinate.
-																											; 		 add a,15            ; add width of sprite.
-																											; 		 cp (ix+5)           ; compare with window limit.
-																											; 		 jr c,kilshr         ; off screen, kill shrapnel.
+; TO BE CONVERTED - #01C1 - DONE - OK
+ChkXY		ldx	#wnTopX																				; chkxy  ld hl,wntopx        ; window top.
+			lda	3,y							; get Y coord										; 		 ld a,(ix+3)         ; fetch shrapnel coordinate.
+			cmpa	,x																						; 		 cp (hl)             ; compare with top window limit.
+			bcs	KilShr						; out of screen, stop it						; 		 jr c,kilshr         ; out of window, kill shrapnel.
+			leax	1,x							; point to Left edge								; 		 inc hl              ; left edge.
+			lda	5,y							; get X coord										; 		 ld a,(ix+5)         ; fetch shrapnel coordinate.
+			cmpa	,x																						; 		 cp (hl)             ; compare with left window limit.
+			bcs	KilShr						; out of screen, stop it						; 		 jr c,kilshr         ; out of window, kill shrapnel.
+			leax	1,x							; point to bottom edge							; 		 inc hl              ; point to bottom.
+			lda	,x								; get it												; 		 ld a,(hl)           ; fetch window limit.
+			adda	#15							; add height of sprite							; 		 add a,15            ; add height of sprite.
+			cmpa	3,y							; compare to Y coord								; 		 cp (ix+3)           ; compare with shrapnel x coordinate.
+			bcs	KilShr						; out of screen, stop it						; 		 jr c,kilshr         ; off screen, kill shrapnel.
+			leax	1,x							; point to right edge							; 		 inc hl              ; point to right edge.
+			lda	,x								; get it												; 		 ld a,(hl)           ; fetch shrapnel y coordinate.
+			adda	#15							; add width of sprite							; 		 add a,15            ; add width of sprite.
+			cmpa	5,y							; compare to X coord								; 		 cp (ix+5)           ; compare with window limit.
+			bcs	KilShr						; out of screen, stop it						; 		 jr c,kilshr         ; off screen, kill shrapnel.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 																											; Drop through.
 																											; Display shrapnel.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; plot   ld l,(ix+3)         ; x integer.
-																											; 		 ld h,(ix+5)         ; y integer.
-																											; 		 ld (dispx),hl       ; workspace coordinates.
-																											; 		 ld a,(ix+0)         ; type.
+; 						- continues from previous part
+; TO BE CONVERTED - #01C1 - DONE
+Plot		lda	3,y							; high byte	(Y coord)							; plot   ld l,(ix+3)         ; x integer.
+			ldb	5,y							; low byte (X coord)								; 		 ld h,(ix+5)         ; y integer.
+			std	<reg_HL						; Y - X
+			exg	a,b							; regD= X - Y (added again)
+			std	<dispX						; 3,y -> dispX										; 		 ld (dispx),hl       ; workspace coordinates.
+			lda	,y								; get type											; 		 ld a,(ix+0)         ; type.
 																											; 		 and a               ; is it a laser?
-																											; 		 jr z,plot1          ; yes, draw laser instead.
-																											; plot0  ld a,h              ; which pixel within byte do we
-																											; 		 and 7               ; want to set first?
-																											; 		 ld d,0              ; no high byte.
+			beq	Plot1							; if zero, draw laser							; 		 jr z,plot1          ; yes, draw laser instead.
+;;EPlot0		lda	<reg_H					   ; 3,y (dispY)	(original)						; plot0  ld a,h              ; which pixel within byte do we
+Plot0		lda	<reg_L					   ; 4,y (dispX)	(original)						; plot0  ld a,h              ; which pixel within byte do we
+			anda	#7								; low byte of DE									; 		 and 7               ; want to set first?
+			clr	<reg_D																				; 		 ld d,0              ; no high byte.
 																											; 		 ld e,a              ; copy to de.
-																											; 		 ld hl,dots          ; table of small pixel positions.
-																											; 		 add hl,de           ; hl points to values we want to POKE to screen.
-																											; 		 ld e,(hl)           ; get value.
-																											; 		 call scadd          ; screen address.
-																											; 		 ld a,(hl)           ; see what's already there.
-																											; 		 xor e               ; merge with pixels.
-																											; 		 ld (hl),a           ; put back on screen.
-																											; 		 ret
-																											; plot1  call scadd          ; screen address.
+			ldx	#dots							; pointer											; 		 ld hl,dots          ; table of small pixel positions.
+			leax	a,x							; add 1 byte offset								; 		 add hl,de           ; hl points to values we want to POKE to screen.
+			lda	,x								; get byte from table							; 		 ld e,(hl)           ; get value.
+			sta	<reg_E						; to pseudoreg
+			jsr	ScAdd							; get screen address								; 		 call scadd          ; screen address.
+			lda	,x								; get what is there in screen					; 		 ld a,(hl)           ; see what's already there.
+			eora	<reg_E						; merge pixels										; 		 xor e               ; merge with pixels.
+			sta	,x								; update screen									; 		 ld (hl),a           ; put back on screen.
+			rts									; return												; 		 ret
+Plot1		jsr	ScAdd							; get screen address								; plot1  call scadd          ; screen address.
 																											; 		 ld a,(hl)           ; fetch byte there.
-																											; 		 cpl                 ; toggle all bits.
+			com	,x								; toggle all bits									; 		 cpl                 ; toggle all bits.
 																											; 		 ld (hl),a           ; new byte.
-																											; 		 ret
-																											; kilshr ld (ix+0),128       ; switch off shrapnel.
-																											; 		 ret
+			rts									; return												; 		 ret
+KilShr	lda	#128							; set bit7											; kilshr ld (ix+0),128       ; switch off shrapnel.
+			sta	,y								; to disable shrapnel piece
+			rts									; return												; 		 ret
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 																											; ;explc  defb 0              ; explosion counter.
-																											; shrsin defw 0,1024,391,946,724,724,946,391
-																											; 		 defw 1024,0,946,65144,724,64811,391,64589
-																											; 		 defw 0,64512,65144,64589,64811,64811,64589,65144
-																											; 		 defw 64512,0,64589,391,64811,724,65144,946
+shrSin 	fdb	0,1024,391,946,724,724,946,391												; shrsin defw 0,1024,391,946,724,724,946,391
+			fdb	1024,0,946,65144,724,64811,391,64589										; 		 defw 1024,0,946,65144,724,64811,391,64589
+			fdb	0,64512,65144,64589,64811,64811,64589,65144								; 		 defw 0,64512,65144,64589,64811,64811,64589,65144
+			fdb	64512,0,64589,391,64811,724,65144,946										; 		 defw 64512,0,64589,391,64811,724,65144,946
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; trail  dec (ix+1)          ; time remaining.
-																											; 		 jp z,trailk         ; time to switch it off.
-																											; 		 call qrand          ; get a random number.
-																											; 		 rra                 ; x or y axis?
-																											; 		 jr c,trailv         ; use x.
-																											; 		 rra                 ; which direction?
-																											; 		 jr c,traill         ; go left.
-																											; 		 inc (ix+5)          ; go right.
-																											; 		 ret
-																											; traill dec (ix+5)          ; go left.
-																											; 		 ret
-																											; trailv rra                 ; which direction?
-																											; 		 jr c,trailu         ; go up.
-																											; 		 inc (ix+3)          ; go down.
-																											; 		 ret
-																											; trailu dec (ix+3)          ; go up.
-																											; 		 ret
-																											; trailk ld (ix+3),200       ; set off-screen to kill vapour trail.
-																											; 		 ret
+; TO BE CONVERTED - T02 - DONE
+Trail		dec	1,y							; get time remaining (?)						; trail  dec (ix+1)          ; time remaining.
+			beq	TrailK						; if zero, set it out of  screen				; 		 jp z,trailk         ; time to switch it off.
+			jsr	QRand							; get a random	number							; 		 call qrand          ; get a random number.
+			rora									; see bit0											; 		 rra                 ; x or y axis?
+			bcs	TrailV						; if set, move vertically						; 		 jr c,trailv         ; use x.
+			rora									; see bit1														; 		 rra                 ; which direction?
+			bcs	TrailL						; if set, go left									; 		 jr c,traill         ; go left.
+			inc	5,y							; else go right (inc X)							; 		 inc (ix+5)          ; go right.
+			rts									; return												; 		 ret
+TrailL	dec	5,y							; go left (dec X)									; traill dec (ix+5)          ; go left.
+			rts									; return												; 		 ret
+TrailV	rora									; see bit1											; trailv rra                 ; which direction?
+			bcs	TrailU						; if set, go up									; 		 jr c,trailu         ; go up.
+			inc	3,y							; else go down (inc Y)							; 		 inc (ix+3)          ; go down.
+			rts									; return												; 		 ret
+TrailU	dec	3,y							; go up (dec Y)									; trailu dec (ix+3)          ; go up.
+			rts									; return												; 		 ret
+TrailK	lda	#200 							; set it												; trailk ld (ix+3),200       ; set off-screen to kill vapour trail.
+			sta	3,y							; out of screen
+TrailEx	rts									; return												; 		 ret
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; laser  ld a,(ix+1)         ; direction.
-																											; 		 rra                 ; left or right?
-																											; 		 jr nc,laserl        ; move left.
-																											; 		 ld b,8              ; distance to travel.
-																											; 		 jr laserm           ; move laser.
-																											; laserl ld b,248            ; distance to travel.
-																											; laserm ld a,(ix+5)         ; y position.
-																											; 		 add a,b             ; add distance.
-																											; 		 ld (ix+5),a         ; set new y coordinate.
+; TO BE CONVERTED - T01 - DONE
+Laser		lda	1,y							; get direction									; laser  ld a,(ix+1)         ; direction.
+			rora									; see bit0											; 		 rra                 ; left or right?
+			bcc	LaserL						; if not set, move left							; 		 jr nc,laserl        ; move left.
+			ldb	#8								; distance to travel								; 		 ld b,8              ; distance to travel.
+			bra	LaserM						; move laser (right)								; 		 jr laserm           ; move laser.
+LaserL	ldb	#248							; get value -8										; laserl ld b,248            ; distance to travel.
+LaserM	lda	5,y							; get actual position							; laserm ld a,(ix+5)         ; y position.
+			stb	<reg_B						; save displacement								; 		 add a,b             ; add distance.
+			adda	<reg_B						; add to position
+			sta	5,y							; update X coord									; 		 ld (ix+5),a         ; set new y coordinate.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; Test new block.
+; Test new block																						; Test new block.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; 		 ld (dispy),a        ; set y for block collision detection purposes.
-																											; 		 ld a,(ix+3)         ; get x.
-																											; 		 ld (dispx),a        ; set coordinate for collision test.
-																											; 		 call tstbl          ; get block type there.
-																											; 		 cp WALL             ; is it solid?
-																											; 		 jr z,trailk         ; yes, it cannot pass.
-																											; 		 cp FODDER           ; is it fodder?
-																											; 		 ret nz              ; no, ignore it.
-																											; 		 call fdchk          ; remove fodder block.
-																											; 		 jr trailk           ; destroy laser.
+			sta	<dispY						; set new X coordinate							; 		 ld (dispy),a        ; set y for block collision detection purposes.
+			lda	3,y							; get Y coordinate								; 		 ld a,(ix+3)         ; get x.
+			sta	<dispX						; put into disp variable						; 		 ld (dispx),a        ; set coordinate for collision test.
+			jsr	TstBl							; get block at this coords						; 		 call tstbl          ; get block type there.
+			cmpa	#WALL							; is a wall?										; 		 cp WALL             ; is it solid?
+			beq	TrailK						; yes, put laser out of screen				; 		 jr z,trailk         ; yes, it cannot pass.
+			cmpa	#FODDER						; is it fodder?									; 		 cp FODDER           ; is it fodder?
+			bne	TrailEx						; no, set it out of screen						; 		 ret nz              ; no, ignore it.
+			jsr	FdChk							; remove fodder block							; 		 call fdchk          ; remove fodder block.
+			bra	TrailK						; destroy laser									; 		 jr trailk           ; destroy laser.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; dots   defb 128,64,32,16,8,4,2,1
+dots		fcb	128,64,32,16,8,4,2,1																; dots   defb 128,64,32,16,8,4,2,1
 																											; Plot, preserving de.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; plotde push de             ; put de on stack.
-																											; 		 call plot           ; plot pixel.
-																											; 		 pop de              ; restore de from stack.
-																											; 		 ret
+; TO BE CONVERTED - #121 - DONE
+PlotDE	ldd	<reg_DE						; get reg_DE										; plotde push de             ; put de on stack.
+			pshs	d								; save into stack
+			jsr	Plot							; plot pixel										; 		 call plot           ; plot pixel.
+			puls	d								; restore											; 		 pop de              ; restore de from stack.
+			std	<reg_DE						; reg_DE
+			rts									; return												; 		 ret
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 																											; Shoot a laser.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; shoot  ld c,a              ; store direction in c register.
-																											; 		 ld a,(ix+8)         ; x coordinate.
-																											; shoot1 add a,7             ; down 7 pixels.
-																											; 		 ld l,a              ; puty x coordinate in l.
-																											; 		 ld h,(ix+9)         ; y coordinate in h.
-																											; 		 push ix             ; store pointer to sprite.
-																											; 		 call fpslot         ; find particle slot.
-																											; 		 jr nc,vapou2        ; failed, restore ix.
-																											; 		 ld (ix+0),0         ; set up a laser.
-																											; 		 ld (ix+1),c         ; set the direction.
-																											; 		 ld (ix+3),l         ; set x coordinate.
-																											; 		 rr c                ; check direction we want.
-																											; 		 jr c,shootr         ; shoot right.
-																											; 		 ld a,h              ; y position.
+; TO BE CONVERTED - #01 - DONE
+													; receives regA=01 to fire a Laser to the right
+Shoot		sta	<reg_C						; save direction									; shoot  ld c,a              ; store direction in c register.
+			ldb	8,y							; low byte (Y coord)								; 		 ld a,(ix+8)         ; x coordinate.
+Shoot1	addb	#7								; move it down 7 pixels							; shoot1 add a,7             ; down 7 pixels.
+			lda	9,y							; high byte (X coord)							; 		 ld l,a              ; puty x coordinate in l.
+			std	<reg_HL						; HL=XY coords										; 		 ld h,(ix+9)         ; y coordinate in h.
+			pshs	y								; save pointer										; 		 push ix             ; store pointer to sprite.
+			jsr	FPSlot						; find particle slot								; 		 call fpslot         ; find particle slot.
+			bcc	Vapou2						; not found, restore ix							; 		 jr nc,vapou2        ; failed, restore ix.
+			clr	,y								; set up a laser									; 		 ld (ix+0),0         ; set up a laser.
+			lda	<reg_C						; get requested direction
+			sta	1,y							; set direction									; 		 ld (ix+1),c         ; set the direction.
+			lda	<reg_L						; get Y coordinate
+			sta	3,y							; set it												; 		 ld (ix+3),l         ; set x coordinate.
+			ror	<reg_C						; check direction									; 		 rr c                ; check direction we want.
+			bcs	Shootr						; if set, shoot right							; 		 jr c,shootr         ; shoot right.
+			lda	<reg_H						; get X coord										; 		 ld a,h              ; y position.
 																											; ;       dec a               ; left a pixel.
-																											; shoot0 and 248             ; align on character boundary.
-																											; 		 ld (ix+5),a         ; set y coordinate.
-																											; 		 jr vapou0           ; draw first image.
-																											; shootr ld a,h              ; y position.
-																											; 		 add a,15            ; look right.
-																											; 		 jr shoot0           ; align and continue.
+Shoot0	anda	#248							; #%11111000 align to char						; shoot0 and 248             ; align on character boundary.
+			sta	5,y							; set X coordinate								; 		 ld (ix+5),a         ; set y coordinate.
+			bra	Vapou0						; go plot it										; 		 jr vapou0           ; draw first image.
+Shootr	lda	<reg_H						; get X coord										; shootr ld a,h              ; y position.
+			adda	#15							; point to the right								; 		 add a,15            ; look right.
+			bra	Shoot0						; go back to plot it								; 		 jr shoot0           ; align and continue.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 																											; Create a bit of vapour trail.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; vapour push ix             ; store pointer to sprite.
-																											; 		 ld l,(ix+8)         ; x coordinate.
-																											; 		 ld h,(ix+9)         ; y coordinate.
-																											; vapou3 ld de,7*256+7       ; mid-point of sprite.
-																											; 		 add hl,de           ; point to centre of sprite.
-																											; 		 call fpslot         ; find particle slot.
-																											; 		 jr c,vapou1         ; no, we can use it.
-																											; vapou2 pop ix              ; restore sprite pointer.
-																											; 		 ret                 ; out of slots, can't generate anything.
+; TO BE CONVERTED - #10 - Script - DONE
+Vapour	pshs	y								; save pointer										; vapour push ix             ; store pointer to sprite.
+			ldd	8,y							; Y-X													; 		 ld l,(ix+8)         ; x coordinate.
+			exg	a,b							; X-Y
+			tfr	d,x							; send to HL (X-Y)								; 		 ld h,(ix+9)         ; y coordinate.
+Vapou3	leax	$0707,x						; mid-point of sprite							; vapou3 ld de,7*256+7       ; mid-point of sprite.
+			stx	<reg_HL						; update pseudo-register						; 		 add hl,de           ; point to centre of sprite.
+			jsr	FPSlot						; find a free slot								; 		 call fpslot         ; find particle slot.
+			bcs	Vapou1						; found one, use it								; 		 jr c,vapou1         ; no, we can use it.
+; TO BE CONVERTED - #01B - DONE
+Vapou2	puls	y								; restore pointer									; vapou2 pop ix              ; restore sprite pointer.
+			rts									; and exit											; 		 ret                 ; out of slots, can't generate anything.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; vapou1 ld (ix+3),l         ; set up x.
-																											; 		 ld (ix+5),h         ; set up y coordinate.
-																											; 		 call qrand          ; get quick random number.
-																											; 		 and 15              ; random time.
-																											; 		 add a,15            ; minimum time on screen.
-																											; 		 ld (ix+1),a         ; set time on screen.
-																											; 		 ld (ix+0),1         ; define particle as vapour trail.
-																											; vapou0 call chkxy          ; plot first position.
-																											; 		 jr vapou2
+; TO BE CONVERTED - Script01 - DONE
+Vapou1	ldd	<reg_HL						; get coordinates	(X-Y)							; vapou1 ld (ix+3),l         ; set up x.
+			stb	3,y							; set Y coord
+			sta	5,y							; and  X coord										; 		 ld (ix+5),h         ; set up y coordinate.
+			jsr	QRand							; get a random number							; 		 call qrand          ; get quick random number.
+			anda	#15							; limit to 4 bits									; 		 and 15              ; random time.
+			adda	#15							; minimum value (time)							; 		 add a,15            ; minimum time on screen.
+			sta	1,y							; set time on screen								; 		 ld (ix+1),a         ; set time on screen.
+			lda	#1								; value to
+			sta	,y								; set it as particle trail						; 		 ld (ix+0),1         ; define particle as vapour trail.
+; TO BE CONVERTED - #01C - DONE
+Vapou0	jsr	ChkXY							; plot first position							; vapou0 call chkxy          ; plot first position.
+			bra	Vapou2						; exit												; 		 jr vapou2
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 																											; Create a user particle.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
@@ -1018,106 +1067,120 @@ ProShr																									; proshr ld ix,SHRAPN      ; table.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 																											; Create a vertical or horizontal star.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; star   push ix             ; store pointer to sprite.
-																											; 		 call fpslot         ; find particle slot.
-																											; 		 jp c,star7          ; found one we can use.
-																											; star0  pop ix              ; restore sprite pointer.
-																											; 		 ret                 ; out of slots, can't generate anything.
-																											; star7  ld a,c              ; direction.
-																											; 		 and 3               ; is it left?
-																											; 		 jr z,star1          ; yes, it's horizontal.
-																											; 		 dec a               ; is it right?
-																											; 		 jr z,star2          ; yes, it's horizontal.
-																											; 		 dec a               ; is it up?
-																											; 		 jr z,star3          ; yes, it's vertical.
-																											; 		 ld a,(wntopx)       ; get edge of screen.
-																											; 		 inc a               ; down one pixel.
-																											; star8  ld (ix+3),a         ; set x coord.
-																											; 		 call qrand          ; get quick random number.
-																											; star9  ld (ix+5),a         ; set y position.
-																											; 		 ld a,c              ; direction.
-																											; 		 and 3               ; zero to three.
-																											; 		 add a,3             ; 3 to 6 for starfield.
-																											; 		 ld (ix+0),a         ; define particle as star.
-																											; 		 call chkxy          ; plot first position.
-																											; 		 jp star0
-																											; star1  call qrand          ; get quick random number.
-																											; 		 ld (ix+3),a         ; set x coord.
-																											; 		 ld a,(wnrgtx)       ; get edge of screen.
-																											; 		 add a,15            ; add width of sprite minus 1.
-																											; 		 jp star9
-																											; star2  call qrand          ; get quick random number.
-																											; 		 ld (ix+3),a         ; set x coord.
-																											; 		 ld a,(wnlftx)       ; get edge of screen.
-																											; 		 jp star9
-																											; star3  ld a,(wnbotx)       ; get edge of screen.
-																											; 		 add a,15            ; height of sprite minus one pixel.
-																											; 		 jp star8
+; TO BE CONVERTED - #02 - DONE
+Star		pshs	y								; save pointer										; star   push ix             ; store pointer to sprite.
+			bsr	FPSlot						; find a slot										; 		 call fpslot         ; find particle slot.
+			bcs	Star7							; if found, use it								; 		 jp c,star7          ; found one we can use.
+Star0		puls	y								; else restore pointer							; star0  pop ix              ; restore sprite pointer.
+			rts									; return												; 		 ret                 ; out of slots, can't generate anything.
+Star7		lda	<reg_C						; get direction									; star7  ld a,c              ; direction.
+			anda	#3								; is if left (0)?									; 		 and 3               ; is it left?
+			beq	Star1							; yes, go there									; 		 jr z,star1          ; yes, it's horizontal.
+			deca									; is it right (1)?								; 		 dec a               ; is it right?
+			beq	Star2							; yes, go there									; 		 jr z,star2          ; yes, it's horizontal.
+			deca									; is it up (2)?									; 		 dec a               ; is it up?
+			beq	Star3							; yes, go there									; 		 jr z,star3          ; yes, it's vertical.
+			lda	<wnTopX						; get top edge of screen						; 		 ld a,(wntopx)       ; get edge of screen.
+			inca									; down one pixel									; 		 inc a               ; down one pixel.
+Star8		sta	3,y							; set Y coord										; star8  ld (ix+3),a         ; set x coord.
+			jsr	QRand							; get radom number								; 		 call qrand          ; get quick random number.
+Star9		sta	5,y							; set as X coord									; star9  ld (ix+5),a         ; set y position.
+			lda	<reg_C						; get direction									; 		 ld a,c              ; direction.
+			anda	#3								; use 2 lower bits								; 		 and 3               ; zero to three.
+			adda	#3								; values 3-4-5-6 to starfield					; 		 add a,3             ; 3 to 6 for starfield.
+			sta	,y								; define particle as star						; 		 ld (ix+0),a         ; define particle as star.
+			jsr	ChkXY							; plot 1st position								; 		 call chkxy          ; plot first position.
+			bra	Star0							; exit												; 		 jp star0
+Star1		jsr	QRand							; Left. get a random number					; star1  call qrand          ; get quick random number.
+			sta	3,y							; set Y coord										; 		 ld (ix+3),a         ; set x coord.
+			lda	<wnRgtX						; get right edge of screen						; 		 ld a,(wnrgtx)       ; get edge of screen.
+			adda	#15							; add sprite width minus one					; 		 add a,15            ; add width of sprite minus 1.
+			bra	Star9							; set X coord										; 		 jp star9
+Star2		jsr	QRand							; Right. get a random number					; star2  call qrand          ; get quick random number.
+			sta	3,y							; set Y coord										; 		 ld (ix+3),a         ; set x coord.
+			lda	<wnLftX						; get left edge of screen						; 		 ld a,(wnlftx)       ; get edge of screen.
+			bra	Star9							; set X coord										; 		 jp star9
+Star3		lda	<wnBotX						; Up. get bottom edge of screen				; star3  ld a,(wnbotx)       ; get edge of screen.
+			adda	#15							; add height of sprite minus one				; 		 add a,15            ; height of sprite minus one pixel.
+			bra	Star8							; set Y coord										; 		 jp star8
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 																											; Find particle slot for lasers or vapour trail.
 																											; Can't use alternate accumulator.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; fpslot ld ix,SHRAPN        ; shrapnel table.
+; TO BE CONVERTED - #01A - DONE
+FPSlot	ldy	#SHRAPN						; point to table beginning						; fpslot ld ix,SHRAPN        ; shrapnel table.
 																											; 		 ld de,SHRSIZ        ; size of each particle.
-																											; 		 ld b,NUMSHR         ; number of pieces in table.
-																											; fpslt0 ld a,(ix+0)         ; get type.
-																											; 		 rla                 ; is this slot in use?
-																											; 		 ret c               ; no, we can use it.
-																											; 		 add ix,de           ; point to more shrapnel.
-																											; 		 djnz fpslt0         ; repeat for all shrapnel.
-																											; 		 ret                 ; out of slots, can't generate anything.
+			ldb	#NUMSHR						; number of pieces								; 		 ld b,NUMSHR         ; number of pieces in table.
+FPSlt0	lda	,y								; get type											; fpslt0 ld a,(ix+0)         ; get type.
+			rola									; is slot free ($ff)?							; 		 rla                 ; is this slot in use?
+			bcs	FPSltEx						; yes, use it										; 		 ret c               ; no, we can use it.
+			leay	SHRSIZ,y						; point to next slot								; 		 add ix,de           ; point to more shrapnel.
+			decb									; decrement counter
+			bne	FPSlt0						; not the end? loopback							; 		 djnz fpslt0         ; repeat for all shrapnel.
+FPSltEx	rts									; return												; 		 ret                 ; out of slots, can't generate anything.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 																											; Create an explosion at sprite position.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; explod ld c,a              ; particles to create.
-																											; 		 push ix             ; store pointer to sprite.
-																											; 		 ld l,(ix+8)         ; x coordinate.
-																											; 		 ld h,(ix+9)         ; y coordinate.
-																											; 		 ld ix,SHRAPN        ; shrapnel table.
+; TO BE CONVERTED - #04 - DONE
+Explod	sta	<reg_C						; save number of particles to be created	; explod ld c,a              ; particles to create.
+			pshs	y								; save sprite pointer							; 		 push ix             ; store pointer to sprite.
+			ldd	8,y							; get Y - X coords								; 		 ld l,(ix+8)         ; x coordinate.
+			std	<reg_HL						; Y - X												; 		 ld h,(ix+9)         ; y coordinate.
+			ldy	#SHRAPN						; point to shrapnel data table				; 		 ld ix,SHRAPN        ; shrapnel table.
 																											; 		 ld de,SHRSIZ        ; size of each particle.
-																											; 		 ld b,NUMSHR         ; number of pieces in table.
-																											; expld0 ld a,(ix+0)         ; get type.
-																											; 		 rla                 ; is this slot in use?
-																											; 		 jr c,expld1         ; no, we can use it.
-																											; expld2 add ix,de           ; point to more shrapnel.
-																											; 		 djnz expld0         ; repeat for all shrapnel.
-																											; expld3 pop ix              ; restore sprite pointer.
-																											; 		 ret                 ; out of slots, can't generate any more.
-																											; expld1 ld a,c              ; shrapnel counter.
-																											; 		 and 15              ; 0 to 15.
-																											; 		 add a,l             ; add to x.
-																											; 		 ld (ix+3),a         ; x coord.
-																											; 		 ld a,(seed3)        ; crap random number.
-																											; 		 and 15              ; 0 to 15.
-																											; 		 add a,h             ; add to y.
-																											; 		 ld (ix+5),a         ; y coord.
-																											; 		 ld (ix+0),2         ; switch it on.
-																											; 		 exx                 ; store coordinates.
-																											; 		 call chkxy          ; plot first position.
-																											; 		 call qrand          ; quick random angle.
-																											; 		 and 60              ; keep within range.
-																											; 		 ld (ix+1),a         ; angle.
-																											; 		 exx                 ; restore coordinates.
-																											; 		 dec c               ; one less piece of shrapnel to generate.
-																											; 		 jr nz,expld2        ; back to main explosion loop.
-																											; 		 jr expld3           ; restore sprite pointer and exit.
+			ldb	#NUMSHR						; get number of pieces							; 		 ld b,NUMSHR         ; number of pieces in table.
+			stb	<reg_B						; into counter
+Expld0	lda	,y								; get type											; expld0 ld a,(ix+0)         ; get type.
+			rola									; see bit7, is it used?							; 		 rla                 ; is this slot in use?
+			bcs	Expld1						; no, we can use it								; 		 jr c,expld1         ; no, we can use it.
+Expld2	leay	SHRSIZ,y						; point to next table entry					; expld2 add ix,de           ; point to more shrapnel.
+			dec	<reg_B						; decrement counter
+			bne	Expld0						; not done? loopback								; 		 djnz expld0         ; repeat for all shrapnel.
+Expld3	puls	y								; restore pointer									; expld3 pop ix              ; restore sprite pointer.
+			rts									; return												; 		 ret                 ; out of slots, can't generate any more.
+Expld1	lda	<reg_C						; get number of particles						; expld1 ld a,c              ; shrapnel counter.
+			anda	#15							; limit to 15										; 		 and 15              ; 0 to 15.
+			adda	<reg_H						; add Y coord										; 		 add a,l             ; add to x.
+			sta	3,y							; set Y coord										; 		 ld (ix+3),a         ; x coord.
+			lda	<seed3						; read last random number						; 		 ld a,(seed3)        ; crap random number.
+			anda	#15							; limit to 0-15									; 		 and 15              ; 0 to 15.
+			adda	<reg_L						; add X coord										; 		 add a,h             ; add to y.
+			sta	5,y							; set X coord										; 		 ld (ix+5),a         ; y coord.
+			lda	#2								; switch
+			sta	,y								; shrapnel on										; 		 ld (ix+0),2         ; switch it on.
+			jsr	do_exx						; store BC, DE, HL								; 		 exx                 ; store coordinates.
+			jsr	ChkXY							; plot 1st position								; 		 call chkxy          ; plot first position.
+			jsr	QRand							; get a random number							; 		 call qrand          ; quick random angle.
+			anda	#60							; keep into angle range (0-60)				; 		 and 60              ; keep within range.
+			sta	1,y							; put at offset 1									; 		 ld (ix+1),a         ; angle.
+			jsr	do_exx						; restore old values								; 		 exx                 ; restore coordinates.
+			dec	<reg_C						; decrement counter								; 		 dec c               ; one less piece of shrapnel to generate.
+			bne	Expld2						; not done? loopback								; 		 jr nz,expld2        ; back to main explosion loop.
+			bra	Expld3						; exit restoring pointer						; 		 jr expld3           ; restore sprite pointer and exit.
+; ------------------------------------------------------------------------------------------------------------------------------------------
+; TO BE CONVERTED - #02A - DONE
+QRand		
 																											; qrand  ld a,(seed3)        ; random seed.
 																											; 		 ld l,a              ; low byte.
+
 																											; 		 ld h,0              ; no high byte.
+
 																											; 		 ld a,r              ; r register.
 																											; 		 xor (hl)            ; combine with seed.
-																											; 		 ld (seed3),a        ; new seed.
-																											; 		 ret
-																											; seed3  defb 0
+			jsr	Random						; get a Random number
+			eora	<seed3						; merge with old seed
+			sta	<seed3						; update seed										; 		 ld (seed3),a        ; new seed.
+			rts									; return												; 		 ret
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 																											; Display all shrapnel.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-DShrp																										; dshrp  ld hl,plotde        ; display routine.
-																											; 		 ld (proshx+1),hl    ; modify routine.
-																											; 		 call proshr         ; process shrapnel.
-																											; 		 ld hl,prosh1        ; processing routine.
-																											; 		 ld (proshx+1),hl    ; modify the call.
-			rts																							; 		 ret
+; TO BE CONVERTED - #12 - ReDraw - DONE
+DShrp		ldx	#PlotDE						; get routine address							; dshrp  ld hl,plotde        ; display routine.
+			stx	ProShmod+1					; change called one								; 		 ld (proshx+1),hl    ; modify routine.
+			jsr	ProShr						; call 'caller'									; 		 call proshr         ; process shrapnel.
+			ldx	#ProSh1						; get default routine address					; 		 ld hl,prosh1        ; processing routine.
+			stx	ProShmod+1					; restore it										; 		 ld (proshx+1),hl    ; modify the call.
+			rts									; return												; 		 ret
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; Particle engine																						; Particle engine
 ; ------------------------------------------------------------------------------------------------------------------------------------------
@@ -1132,52 +1195,65 @@ IniSh0	sta	,x								; set one element									; inish0 ld (hl),255         ; ki
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 																											; Check for collision between laser and sprite.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; lcol   ld hl,SHRAPN        ; shrapnel table.
+; TO BE CONVERTED - #05 - DONE
+LCol		ldx	#SHRAPN						; point to table beginning						; lcol   ld hl,SHRAPN        ; shrapnel table.
 																											; 		 ld de,SHRSIZ        ; size of each particle.
-																											; 		 ld b,NUMSHR         ; number of pieces in table.
-																											; lcol0  ld a,(hl)           ; get type.
+			ldb	#NUMSHR						; number of pieces								; 		 ld b,NUMSHR         ; number of pieces in table.
+LCol0		lda	,x								; get type											; lcol0  ld a,(hl)           ; get type.
 																											; 		 and a               ; is this slot a laser?
-																											; 		 jr z,lcol1          ; yes, check collision.
-																											; lcol3  add hl,de           ; point to more shrapnel.
-																											; 		 djnz lcol0          ; repeat for all shrapnel.
-																											; 		 ret                 ; no collision, carry not set.
-																											; lcol1  push hl             ; store pointer to laser.
+			beq	LCol1							; if zero is a laser, check collision		; 		 jr z,lcol1          ; yes, check collision.
+LCol3		leax	SHRSIZ,x						; point to next table entry					; lcol3  add hl,de           ; point to more shrapnel.
+			decb									; decrement counter
+			bne	LCol0							; not done? loopback								; 		 djnz lcol0          ; repeat for all shrapnel.
+			andcc	#%11111110					; clear carry
+			rts									; return NO collision							; 		 ret                 ; no collision, carry not set.
+LCol1		
+ 			pshs	x								; (added again)														; lcol1  push hl             ; store pointer to laser.
 																											; 		 inc hl              ; direction.
 																											; 		 inc hl              ; not used.
 																											; 		 inc hl              ; x position.
-																											; 		 ld a,(hl)           ; get x.
-																											; 		 sub (ix+X)          ; subtract sprite x.
-																											; lcolh  cp 16               ; within range?
-																											; 		 jr nc,lcol2         ; no, missed.
+			lda	3,x							; get shrapnel Y coord							; 		 ld a,(hl)           ; get x.
+			suba	Xval,y						; subtract sprite Y coord						; 		 sub (ix+X)          ; subtract sprite x.
+LColh		cmpa	#16							; within range?									; lcolh  cp 16               ; within range?
+			bcc	LCol2							; no, missed										; 		 jr nc,lcol2         ; no, missed.
 																											; 		 inc hl              ; not used.
 																											; 		 inc hl              ; y position.
-																											; 		 ld a,(hl)           ; get y.
-																											; 		 sub (ix+Y)          ; subtract sprite y.
-																											; 		 cp 16               ; within range?
-																											; 		 jr c,lcol4          ; yes, collision occurred.
-																											; lcol2  pop hl              ; restore laser pointer from stack.
-																											; 		 jr lcol3
-																											; lcol4  pop hl              ; restore laser pointer.
-																											; 		 ret                 ; return with carry set for collision.
+			lda	5,x							; get shrapnel X coord							; 		 ld a,(hl)           ; get y.
+			suba	Yval,y						; subtract sprite X coord						; 		 sub (ix+Y)          ; subtract sprite y.
+			cmpa	#16							; within range?									; 		 cp 16               ; within range?
+			bcs	LCol4							; yes, collision detected						; 		 jr c,lcol4          ; yes, collision occurred.
+LCol2		
+			puls	x								; (added again)														; lcol2  pop hl              ; restore laser pointer from stack.
+			bra	LCol3							; look for next piece							; 		 jr lcol3
+LCol4		
+ 		   puls	x								; (added again)									; lcol4  pop hl              ; restore laser pointer.
+			rts									; return												; 		 ret                 ; return with carry set for collision.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; Main game engine code starts here																; Main game engine code starts here
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 Game																										; game   equ $
 																											; Set up screen address table.
-Setsat	ldx	#SCRBEG						; get screen beginning							; setsat ld hl,16384       ; start of screen.
+;;TSetsat	ldx	#SCRBEG						; get screen beginning							; setsat ld hl,16384       ; start of screen.
+Setsat	ldd	#SCRBEG						; get screen beginning							; setsat ld hl,16384       ; start of screen.
 			ldu	#SCADTB						; point to table									; 		 ld de,SCADTB        ; screen address table.
 			clr	,-s							; number of entries (256)						; 		 ld b,0              ; vertical lines on screen.
-Setsa0	tfr	x,d							; pass address to regD							; setsa0 ex de,hl          ; flip table and screen address.
-			sta	,u+							; write high byte entry, inc pointer		; 		 ld (hl),d           ; write high byte.
+;;TSetsa0	tfr	x,d							; pass address to regD							; setsa0 ex de,hl          ; flip table and screen address.
+;;T			sta	,u+							; write high byte entry, inc pointer		; 		 ld (hl),d           ; write high byte.
+Setsa0	sta	,u+							; write high byte entry, inc pointer		; 		 ld (hl),d           ; write high byte.
 			stb	255,u							; write low byte entry							; 		 inc h               ; second table.
 																											; 		 ld (hl),e           ; write low byte.
 																											; 		 dec h               ; back to first table.
-			stx	<reg_HL						; save old address								; 		 inc l               ; next position in table.
-			jsr	NLine							; 1st byte next screen row						; 		 ex de,hl            ; flip table and screen address back again.
-			ldx	<reg_HL						; get new address									; 		 call nline          ; next line down.
-			dec	,s								; decrement counter
+;;T			stx	<reg_HL						; save old address								; 		 inc l               ; next position in table.
+;;T			jsr	NLine							; 1st byte next screen row						; 		 ex de,hl            ; flip table and screen address back again.
+;;T			ldx	<reg_HL						; get new address									; 		 call nline          ; next line down.
+			addd	#32							; add 32 to go byte below
+			cmpa	#$fe							; end of screen?
+			bcs	Setsa1						; no, skip next
+			lda	#$80							; point to ROM (now in RAM)
+;;T			dec	,s								; decrement counter
+Setsa1	dec	,s								; decrement counter
 			bne	Setsa0						; not yet done? loopback						; 		 djnz setsa0         ; repeat for all lines.
-			leas	1,s
+			leas	1,s							; clean stack
 			jsr	SetPMode						; set desired PMode								; Init graphics mode
 													; not needed for 6847							; 		 call setpal         ; set up ULAplus palette.
 			jsr	CfgHdw						; config Sound and Interrupts
@@ -1198,7 +1274,7 @@ MapSt		lda	stMap							; get position on map							; mapst  ld a,(stmap)      ; 
 IniPbl	
 	IF AFLAG																								; .if aflag
 			ldd	#eop            			; reset blockpointer								; lda #<eop        
-			std	<pbPtr   						; put at write pointer							; sta pbptr
+			std	<pbPtr   					; put at write pointer							; sta pbptr
 						    																				; lda #>eop
 							  																				; sta pbptr+1
 	ENDIF																									; .endif
@@ -1227,7 +1303,7 @@ RstRtn	jsr	RsEvt							; restart events									; rstrtn call rsevt        ; res
 RstRt0	clra									; value zero										; rstrt0 xor a             ; zero in accumulator.
 			sta	<nexLev						; reset next level flag							; 		 ld (nexlev),a       ; reset next level flag.
 			sta	<restFl						; reset restart flag								; 		 ld (restfl),a       ; reset restart flag.
-			sta	<deadF							; reset dead flag									; 		 ld (deadf),a        ; reset dead flag.
+			sta	<deadF						; reset dead flag									; 		 ld (deadf),a        ; reset dead flag.
 			jsr	DRoom							; show screen layout								; 		 call droom          ; show screen layout.
 RpBlc0	
 	IF PFLAG																								; .if pflag
@@ -1246,6 +1322,11 @@ MLoop		jsr	VSync							; synchronize with display						; mloop  call vsync      
 			ldx	#sprTab						; point to sprites Table						; 		 ld ix,sprtab        ; address of sprite table, even sprites.
 			jsr	DSpr							; show sprites (even ones)						; 		 call dspr           ; display even sprites.
 																											; ;       call plsnd       ; play sounds.
+; here Atom calls play sound, that does NOTHING
+; and then ProShr
+; but doesn't call next VSync
+;;T			jsr	ProShr
+;;A			jsr	VSync							; synchronize with display						; 		 call vsync          ; synchronise with display.
 			jsr	VSync							; synchronize with display						; 		 call vsync          ; synchronise with display.
 			ldx	#sprTab+TABSIZ				; point to first odd sprite					; 		 ld ix,sprtab+TABSIZ ; address of first odd sprite.
 			jsr	DSpr							; show sprites (odd ones)						; 		 call dspr           ; display odd sprites.
@@ -1259,7 +1340,7 @@ EvLp1		jsr	Evnt10						; call event10										; evlp1  call evnt10       ; call
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 			ldy	#sSprit						; point to spare sprite data					; 		 ld ix,ssprit        ; point to spare sprite for spawning purposes.
 EvLp2		jsr	Evnt11						; process event 11								; evlp2  call evnt11       ; called once per main loop.
-BSortx	jsr	BSort							; re-order sprites								; bsortx call bsort        ; sort sprites.
+			jsr	BSort							; re-order sprites								; bsortx call bsort        ; sort sprites.
 			lda	<nexLev						; next level flag?								; 		 ld a,(nexlev)       ; finished level flag.
 																											; 		 and a               ; has it been set?
 			bne	NewLev						; yes, go to next	one							; 		 jr nz,newlev        ; yes, go to next level.
@@ -1271,11 +1352,11 @@ BSortx	jsr	BSort							; re-order sprites								; bsortx call bsort        ; so
 			beq	RstRt							; yes, restart										; 		 jr z,rstrt          ; yes, go to next level.
 			deca									; was restart =2?									; 		 dec a               ; has it been set?
 			beq	RstRtn						; yes, do this restart							; 		 jr z,rstrtn         ; yes, go to next level.
-			lda	<deadF							; dead flag?										; 		 ld a,(deadf)        ; dead flag.
+			lda	<deadF						; dead flag?										; 		 ld a,(deadf)        ; dead flag.
 																											; 		 and a               ; is it non-zero?
 			bne	PDead							; yes, go player dead							; 		 jr nz,pdead         ; yes, player dead.
 																											; 		 ld hl,frmno         ; game frame.
-			inc	<frmNo							; increment frame number						; 		 inc (hl)            ; advance the frame.
+			inc	<frmNo						; increment frame number						; 		 inc (hl)            ; advance the frame.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 																											; inc clock (ONLY for THE ATOM, not Z80)
 			bra	MLoop							; loopback											; qoff   jp mloop          ; switched to a jp nz,mloop during test mode.
@@ -1289,7 +1370,7 @@ RBloc																										; rbloc:
 																											; sta tmp+1
 RBloc2																									; rbloc2:
 			ldd	<tmp							; get last block 									; lda tmp            ; check for last block
-			cmpd 	<pbPtr							; compare to write pointer						; cmp pbptr
+			cmpd 	<pbPtr						; compare to write pointer						; cmp pbptr
 			bne	RBloc1						; not equal? process it							; bne rbloc1
 																											; lda tmp+1
 																											; cmp pbptr+1
@@ -1302,10 +1383,10 @@ RBloc1											; READ BLOCK										; rbloc1:
 			bne	RBloc0						; not, skip											; bne rbloc0        ; if not, skip
 																											; iny
 			lda	1,x							; get y												; lda (tmp),y        ; get y
-			sta	<dispY							; put into variable								; sta dispy
+			sta	<dispY						; put into variable								; sta dispy
 				    																						; iny
 			lda	2,x							; get x												; lda (tmp),y        ; get x
-			sta	<dispX							; put into variable								; sta dispx
+			sta	<dispX						; put into variable								; sta dispx
 																											; iny
 			lda	3,x							; get blocknr										; lda (tmp),y        ; get blocknr
 			jsr	PAttr2						; draw block (uses regX)						; jsr pattr2        ; draw block
@@ -1420,10 +1501,11 @@ IniSc0	sta	,x+							; put one											; inisc0 ld (hl),'0'         ; write ze
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 																											; Multiply h by d and return in hl.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; imul   ld e,d              ; HL = H * D
+; TO BE CONVERTED - #09 - DONE
+IMul																										; imul   ld e,d              ; HL = H * D
 																											; 		 ld c,h              ; make c first multiplier.
-																											; imul0  ld hl,0             ; zeroise total.
-																											; 		 ld d,h              ; zeroise high byte.
+			mul									; multiply parameters							; imul0  ld hl,0             ; zeroise total.
+			std	<reg_HL						; result into reg_HL								; 		 ld d,h              ; zeroise high byte.
 																											; 		 ld b,8              ; repeat 8 times.
 																											; imul1  rr c                ; rotate rightmost bit into carry.
 																											; 		 jr nc,imul2         ; wasn't set.
@@ -1432,20 +1514,24 @@ IniSc0	sta	,x+							; put one											; inisc0 ld (hl),'0'         ; write ze
 																											; imul2  rl e                ; shift de 1 bit left.
 																											; 		 rl d
 																											; 		 djnz imul1          ; repeat 8 times.
-																											; 		 ret
+			rts									; return												; 		 ret
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; Divide d by e and return in d, remainder in a.
+; Divide d by e and return in d, remainder in a												; Divide d by e and return in d, remainder in a.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; idiv   xor a
-																											; 		 ld b,8              ; bits to shift.
-																											; idiv0  sla d               ; multiply d by 2.
-																											; 		 rla                 ; shift carry into remainder.
-																											; 		 cp e                ; test if e is smaller.
-																											; 		 jr c,idiv1          ; e is greater, no division this time.
-																											; 		 sub e               ; subtract it.
-																											; 		 inc d               ; rotate into d.
-																											; idiv1  djnz idiv0
-																											; 		 ret
+IDiv		sta	<reg_E						; save divisor
+			stb	<reg_D						; save dividend
+;;O			lda	#0																					
+			clra									; reset remainder									; idiv   xor a
+			ldb	#8								; bits to shift									; 		 ld b,8              ; bits to shift.
+IDiv0		asl	<reg_D						; multiply by 2									; idiv0  sla d               ; multiply d by 2.
+			rola									; carry to remainder								; 		 rla                 ; shift carry into remainder.
+			cmpa	<reg_E						; reaminder greater than divisor?			; 		 cp e                ; test if e is smaller.
+			bcs	IDiv1							; no, skip two										; 		 jr c,idiv1          ; e is greater, no division this time.
+			suba	<reg_E						; subtract divisor								; 		 sub e               ; subtract it.
+			inc	<reg_D						; increment result								; 		 inc d               ; rotate into d.
+IDiv1		decb									; decrement bit counter							; idiv1  djnz idiv0
+			bne	IDiv0							; not yet done, loopback													
+			rts									; return												; 		 ret
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 																											; Initialise a sound.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
@@ -1635,7 +1721,7 @@ IniSc0	sta	,x+							; put one											; inisc0 ld (hl),'0'         ; write ze
 ShwOb		ldx	#objDta+33					; point to objects table room number		; shwob  ld hl,objdta        ; objects table.
 																											; 		 ld de,33            ; distance to room number.
 																											; 		 add hl,de           ; point to room data.
-			ldb	<numOb							; number of objects in the game				; 		 ld a,(numob)        ; number of objects in the game.
+			ldb	<numOb						; number of objects in the game				; 		 ld a,(numob)        ; number of objects in the game.
 																											; 		 ld b,a              ; loop counter.
 ShwOb0																									; shwob0 push bc             ; store count.
 																											; 		 push hl             ; store item pointer.
@@ -1657,7 +1743,7 @@ ShwOb1																									; 		 pop bc              ; restore counter.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 DObj																										; dobj   inc hl              ; point to x.
 			ldd	1,x							; get coordinates									; dobj0  ld de,dispx         ; coordinates.
-			std	<dispX							; put into variables X,Y						; 		 ldi                 ; transfer x coord.
+			std	<dispX						; put into variables X,Y						; 		 ldi                 ; transfer x coord.
 																											; 		 ldi                 ; transfer y too.
 																											; 		 ld de,65500         ; minus 36.
 			leax	-33,x							; point to object image							; 		 add hl,de           ; point to image.
@@ -1746,7 +1832,7 @@ GetOb																										; getob  ld hl,numob         ; number of objects 
 GetOb1	ldd	,x																						; getob1 ld e,(hl)           ; x coord.
 																											; 		 inc hl              ; back to y coord.
 																											; 		 ld d,(hl)           ; y coord.
-			std	<dispX							; save inverted, DObj1 corrects it			; 		 ld (dispx),de       ; set display coords.
+			std	<dispX						; save inverted, DObj1 corrects it			; 		 ld (dispx),de       ; set display coords.
 																											; 		 ld de,65501         ; minus graphic size.
 			leax	-34,x																					; 		 add hl,de           ; point to graphics.
 			
@@ -1763,7 +1849,7 @@ GetObEx	rts																							; 		 ret
 ; Call with object in accumulator, returns zero set if in pockets						; Call with object in accumulator, returns zero set if in pockets.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 GotOb																										; gotob  ld hl,numob         ; number of objects in game.
-			cmpa	<numOb							; are we checking past the end?				; 		 cp (hl)             ; are we checking past the end?
+			cmpa	<numOb						; are we checking past the end?				; 		 cp (hl)             ; are we checking past the end?
 			bcc	GotOb0						; yes, we can't have a non-existent object; 		 jr nc,gotob0        ; yes, we can't have a non-existent object.
 			jsr	FindOb						; find object										; 		 call findob         ; find the object.
 GotOb1	cmpa	#255							; in pocket's?										; gotob1 cp 255              ; in pockets?
@@ -1788,9 +1874,8 @@ FndOb1																									; fndob1 ld e,33             ; distance to room i
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; Drop object number at (dispx, dispy)															; Drop object number at (dispx, dispy).
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-DrpObI	inc	DisObj+1						; set to disable object
 DrpOb																										; drpob  ld hl,numob         ; number of objects in game.
-			cmpa	<numOb							; are we checking past the end?				; 		 cp (hl)             ; are we checking past the end?
+			cmpa	<numOb						; are we checking past the end?				; 		 cp (hl)             ; are we checking past the end?
 			bcc	DrpOEx						; yes, can't drop non-existent item			; 		 ret nc              ; yes, can't drop non-existent item.
 			jsr	GotOb							; make sure object is in inventory			; 		 call gotob          ; make sure object is in inventory.
 			ldx	<reg_HL						; returns location number in reg_HL
@@ -1803,10 +1888,10 @@ DisObj	ldb	#$00							; flag for disabling an object
 			bra	DrpOEx						; exit
 DrpOb1	sta	,x								; update location									; 		 ld (hl),a           ; bring onto screen.
 																											; 		 inc hl              ; point to x coord.
-			lda	<dispY							; get sprite x coordinate						; 		 ld a,(dispx)        ; sprite x coordinate.
+			lda	<dispY						; get sprite x coordinate						; 		 ld a,(dispx)        ; sprite x coordinate.
 			sta	2,x							; set x coord										; 		 ld (hl),a           ; set x coord.
 																											; 		 inc hl              ; point to object y.
-			lda	<dispX							; get sprite y coordinate						; 		 ld a,(dispy)        ; sprite y coordinate.
+			lda	<dispX						; get sprite y coordinate						; 		 ld a,(dispy)        ; sprite y coordinate.
 			sta	1,x							; set y coord										; 		 ld (hl),a           ; set the y position.
 																											; 		 ld de,65501         ; minus graphic size (35)
 			leax	-33,x							; point to object beginning					; 		 add hl,de           ; point to graphics.
@@ -1853,67 +1938,71 @@ SkObj3	leax	-1,x																					; skobj3 dec hl              ; back to y po
 SkObj2	leax	-1,x																					; skobj2 dec hl              ; back to room.
 			rts																							; 		 ret
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; Spawn a new sprite.
+; Spawn a new sprite																					; Spawn a new sprite.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; spawn  ld hl,sprtab        ; sprite table.
-																											; numsp1 ld a,NUMSPR         ; number of sprites.
-																											; 		 ld de,TABSIZ        ; size of each entry.
-																											; spaw0  ex af,af'           ; store loop counter.
-																											; 		 ld a,(hl)           ; get sprite type.
-																											; 		 inc a               ; is it an unused slot?
-																											; 		 jr z,spaw1          ; yes, we can use this one.
-																											; 		 add hl,de           ; point to next sprite in table.
-																											; 		 ex af,af'           ; restore loop counter.
-																											; 		 dec a               ; one less iteration.
-																											; 		 jr nz,spaw0         ; keep going until we find a slot.
+Spawn		ldx	#sprTab						; point to sprites data table					; spawn  ld hl,sprtab        ; sprite table.
+NumSp1	lda	#NUMSPR						; number of sprites								; numsp1 ld a,NUMSPR         ; number of sprites.
+			sta	<reg_AF						; save counter										; 		 ld de,TABSIZ        ; size of each entry.
+Spaw0																										; spaw0  ex af,af'           ; store loop counter.
+			lda	,x								; get type											; 		 ld a,(hl)           ; get sprite type.
+			inca									; is it unused (255)?							; 		 inc a               ; is it an unused slot?
+			beq	Spaw1							; yes, use it										; 		 jr z,spaw1          ; yes, we can use this one.
+			leax	TABSIZ,x						; point to next entry							; 		 add hl,de           ; point to next sprite in table.
+			dec	<reg_AF						; decrement counter								; 		 ex af,af'           ; restore loop counter.
+														 													; 		 dec a               ; one less iteration.
+			bne	Spaw0							; not done? loopback								; 		 jr nz,spaw0         ; keep going until we find a slot.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; Didn't find one but drop through and set up a dummy sprite instead.
+; Didn't find one but drop through and set up a dummy sprite instead					; Didn't find one but drop through and set up a dummy sprite instead.
+; pointers: Y points to actual 'hit' sprite.  X points to new spawned sprite
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; spaw1  push ix             ; existing sprite address on stack.
-																											; 		 ld (spptr),hl       ; store spawned sprite address.
-																											; 		 ld (hl),c           ; set the type.
-																											; 		 inc hl              ; point to image.
-																											; 		 ld (hl),b           ; set the image.
-																											; 		 inc hl              ; next byte.
+Spaw1		pshs	y								; save hit old sprite pointer					; spaw1  push ix             ; existing sprite address on stack.
+			stx	<spPtr						; save new sprite pointer						; 		 ld (spptr),hl       ; store spawned sprite address.
+			lda	<reg_C						; get sprite type									; 		 ld (hl),c           ; set the type.
+			sta	,x								; put as old type									; 		 inc hl              ; point to image.
+			lda	<reg_B						; get image number								; 		 ld (hl),b           ; set the image.
+			sta	1,x							; set as old image number						; 		 inc hl              ; next byte.
 																											; 		 ld (hl),0           ; frame zero.
+			clr	2,x							; set old frame to 0								; 		 inc hl              ; next byte.
+			lda	Xval,y						; get hit sprite Y coordinate					; 		 ld a,(ix+X)         ; x coordinate.
+			sta	3,x							; set as old Y coord								; 		 ld (hl),a           ; set sprite coordinate.
 																											; 		 inc hl              ; next byte.
-																											; 		 ld a,(ix+X)         ; x coordinate.
-																											; 		 ld (hl),a           ; set sprite coordinate.
-																											; 		 inc hl              ; next byte.
-																											; 		 ld a,(ix+Y)         ; y coordinate.
-																											; 		 ld (hl),a           ; set sprite coordinate.
+			lda	Yval,y						; get hit sprite X coordinate					; 		 ld a,(ix+Y)         ; y coordinate.
+			sta	4,x							; set as oly X coord								; 		 ld (hl),a           ; set sprite coordinate.
 																											; 		 inc hl              ; next byte.
 																											; 		 ex de,hl            ; swap address into de.
 																											; 		 ld hl,(spptr)       ; restore address of details.
-																											; 		 ld bc,5             ; number of bytes to duplicate.
-																											; 		 ldir                ; copy first version to new version.
+			ldb	#5								; bytes to copy									; 		 ld bc,5             ; number of bytes to duplicate.
+SpawCpy	lda	,x+							; get a byte from old data area				; 		 ldir                ; copy first version to new version.
+			sta	4,x							; copy into new data area
+			decb									; decrement counter
+			bne	SpawCpy						; not done? copy next byte
+													; regX points to offset +5
+			leax	5,x							; now points to offset +10 
 																											; 		 ex de,hl            ; swap address into de.
-																											; 		 ld a,(ix+10)        ; direction of original.
-																											; 		 ld (hl),a           ; set the direction.
+			lda	10,y							; get direction of hit sprite					; 		 ld a,(ix+10)        ; direction of original.
+			sta	,x+							; set the same for new one						; 		 ld (hl),a           ; set the direction.
 																											; 		 inc hl              ; next byte.
+			clra									; zero												; 		 ld (hl),b           ; reset parameter.
+			std	,x++							; set as PARAM1-PARAM2							; 		 inc hl              ; next byte.
 																											; 		 ld (hl),b           ; reset parameter.
 																											; 		 inc hl              ; next byte.
-																											; 		 ld (hl),b           ; reset parameter.
+			std	,x								; and as jump pointer (low-high bytes)		; 		 ld (hl),b           ; reset parameter.
 																											; 		 inc hl              ; next byte.
 																											; 		 ld (hl),b           ; reset parameter.
-																											; 		 inc hl              ; next byte.
-																											; 		 ld (hl),b           ; reset parameter.
-																											; rtssp  ld ix,(spptr)       ; address of new sprite.
-																											; evis1  call evnt09         ; call sprite initialisation event.
-																											; 		 ld ix,(spptr)       ; address of new sprite.
-																											; 		 call sspria         ; display the new sprite.
-																											; 		 pop ix              ; address of original sprite.
-																											; 		 ret
+RtsSp		ldy	<spPtr						; get pointer to old data of new sprite	; rtssp  ld ix,(spptr)       ; address of new sprite.
+Evis1		jsr	Evnt09						; does nothing										; evis1  call evnt09         ; call sprite initialisation event.
+			ldx	<spPtr						; regX *must* point to sprite data			; 		 ld ix,(spptr)       ; address of new sprite.
+			jsr	SSpriA						; display the new Sprite old coord			; 		 call sspria         ; display the new sprite.
+			puls	y								; restore pointer									; 		 pop ix              ; address of original sprite.
+			rts									; return												; 		 ret
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; spptr  defw 0              ; spawned sprite pointer.
-																											; seed   defb 0              ; seed for random numbers.
 score		fcc	/000000/						; player's score									; score  defb '000000'       ; player's score.
 hiScor	fcc 	/000000/						; high score										; hiscor defb '000000'       ; high score.
 																											; bonus  defb '000000'       ; bonus.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; verify if inside screen window																	; verify if inside screen window
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-CheckX	lda	<dispY							; get Y position									; checkx ld a,e              ; x position.
+CheckX	lda	<dispY						; get Y position									; checkx ld a,e              ; x position.
 			cmpa	#24							; out of screen?									; 		 cp 24               ; off screen?
 			blo	Check1						; no, skip next									; 		 ret c               ; no, it's okay.
 			puls	x								; remove return address from stack			; 		 pop hl              ; remove return address from stack.
@@ -1921,78 +2010,90 @@ Check1	rts									; return												; 		 ret
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 																											; Displays the current score.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; dscor  call preprt         ; set up font and print position.
-																											; 		 call checkx         ; make sure we're in a printable range.
-																											; 		 ld a,(prtmod)       ; get print mode.
+; TO BE CONVERTED - #08 - DONE - VERIFIED
+Dscor		ldx	#score						; point to string to be shown
+			jsr	PrePrt						; fontPtr->grBase - charXY->dispXY			; dscor  call preprt         ; set up font and print position.
+			jsr	CheckX						; Y must be < 24 or aborts						; 		 call checkx         ; make sure we're in a printable range.
+			ldb	#6								; number of digits to show
+			lda	<prtMod						; numbers size										; 		 ld a,(prtmod)       ; get print mode.
 																											; 		 and a               ; standard size text?
-																											; 		 jp nz,bscor0        ; no, show double-height.
-																											; dscor0 push bc             ; place counter onto the stack.
-																											; 		 push hl
-																											; 		 ld a,(hl)           ; fetch character.
-																											; 		 call pchar          ; display character.
-																											; 		 call gaadd          ; get attribute address.
-																											; 		 ld a,(23693)        ; current cell colours.
-																											; 		 ld (hl),a           ; write to attribute cell.
-																											; 		 ld hl,dispy         ; y coordinate.
+			bne	Bscor0						; if not zero, use big digits					;		 jp nz,bscor0        ; no, show double-height.
+Dscor0	pshs	b,x							; save counter										; dscor0 push bc             ; place counter onto the stack.
+													; and pointer										; 		 push hl
+			lda	,x								; get a digit										; 		 ld a,(hl)           ; fetch character.
+			jsr	PChar							; show it											; 		 call pchar          ; display character.
+													; no attributes									; 		 call gaadd          ; get attribute address.
+													; no colours										; 		 ld a,(23693)        ; current cell colours.
+													;														; 		 ld (hl),a           ; write to attribute cell.
+			inc	<dispX						; point to next row								; 		 ld hl,dispy         ; y coordinate.
 																											; 		 inc (hl)            ; move along one.
-																											; 		 pop hl
-																											; 		 inc hl              ; next score column.
-																											; 		 pop bc              ; retrieve character counter.
-																											; 		 djnz dscor0         ; repeat for all digits.
-																											; 		 ld hl,(blkptr)      ; blocks.
-																											; 		 ld (grbase),hl      ; set graphics base.
-Dscor2	ldx	<dispX							; get screen position (X,Y)					; dscor2 ld hl,(dispx)       ; general coordinates.
-			stx	<charX							; save for next time								; 		 ld (charx),hl       ; set up display coordinates.
+			puls	b,x							; restore pointer and counter					; 		 pop hl
+			leax	1,x							; point to next digit							; 		 inc hl              ; next score column.
+			decb									; decrement counter								; 		 pop bc              ; retrieve character counter.
+			bne	Dscor0						; not done, loop									; 		 djnz dscor0         ; repeat for all digits.
+			ldx	blkPtr						; get blocks address								; 		 ld hl,(blkptr)      ; blocks.
+			stx	grBase						; pass to pointer									; 		 ld (grbase),hl      ; set graphics base.
+Dscor2	ldx	<dispX						; get screen position (X,Y)					; dscor2 ld hl,(dispx)       ; general coordinates.
+			stx	<charX						; save for next time								; 		 ld (charx),hl       ; set up display coordinates.
 			rts									; return												; 		 ret
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 																											; Displays the current score in double-height characters.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; bscor0 push bc             ; place counter onto the stack.
-																											; 		 push hl
-																											; 		 ld a,(hl)           ; fetch character.
-																											; 		 call bchar          ; display big char.
-																											; 		 pop hl
-																											; 		 inc hl              ; next score column.
-																											; 		 pop bc              ; retrieve character counter.
-																											; 		 djnz bscor0         ; repeat for all digits.
-																											; 		 jp dscor2           ; tidy up line and column variables.
+; TO BE CONVERTED - #081 - DONE
+Bscor0	pshs	b,x							; save counter										; bscor0 push bc             ; place counter onto the stack.
+													; and pointer										; 		 push hl
+			lda	,x								; get character									; 		 ld a,(hl)           ; fetch character.
+			jsr	Bchar							; print it											; 		 call bchar          ; display big char.
+			puls	b,x							; restore counter and pointer					; 		 pop hl
+			leax	1,x							; point to next char								; 		 inc hl              ; next score column.
+			decb									; decrement counter								; 		 pop bc              ; retrieve character counter.
+			bne	Bscor0						; not done? loopback								; 		 djnz bscor0         ; repeat for all digits.
+			bra	Dscor2						; exit												; 		 jp dscor2           ; tidy up line and column variables.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 																											; Adds number in the hl pair to the score.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; addsc  ld de,score+1       ; ten thousands column.
-																											; 		 ld bc,10000         ; amount to add each time.
-																											; 		 call incsc          ; add to score.
-																											; 		 inc de              ; thousands column.
-																											; 		 ld bc,1000          ; amount to add each time.
-																											; 		 call incsc          ; add to score.
-																											; 		 inc de              ; hundreds column.
-																											; 		 ld bc,100           ; amount to add each time.
-																											; 		 call incsc          ; add to score.
-																											; 		 inc de              ; tens column.
-																											; 		 ld bc,10            ; amount to add each time.
-																											; 		 call incsc          ; add to score.
-																											; 		 inc de              ; units column.
-																											; 		 ld bc,1             ; units.
-																											; incsc  push hl             ; store amount to add.
+; TO BE CONVERTED - #07 - DONE - VERIFIED
+AddSc		ldx	<reg_HL						; get value to be added
+			ldu	#score+1						; poit to 2nd digit by the left				; addsc  ld de,score+1       ; ten thousands column.
+			ldd	#10000						; D=$2710											; 		 ld bc,10000         ; amount to add each time.
+			bsr	IncSc							; process tens of thousands					; 		 call incsc          ; add to score.
+			leau	1,u							; point to thousands								; 		 inc de              ; thousands column.
+			ldd	#1000							; D=3e8												; 		 ld bc,1000          ; amount to add each time.
+			bsr	IncSc							; process thousands								; 		 call incsc          ; add to score.
+			leau	1,u							; point to hundreds								; 		 inc de              ; hundreds column.
+			ldd	#100							; D=$64												; 		 ld bc,100           ; amount to add each time.
+			bsr	IncSc							; process hundreds								; 		 call incsc          ; add to score.
+			leau	1,u							; point to tens									; 		 inc de              ; tens column.
+			ldd	#10							; D=$0a												; 		 ld bc,10            ; amount to add each time.
+			bsr	IncSc							; process tens										; 		 call incsc          ; add to score.
+			leau	1,u							; point to units									; 		 inc de              ; units column.
+			ldd	#1								; D=$01												; 		 ld bc,1             ; units.
+IncSc		pshs	x,d							; save total, partial							; incsc  push hl             ; store amount to add.
 																											; 		 and a               ; clear the carry flag.
-																											; 		 sbc hl,bc           ; subtract from amount to add.
-																											; 		 jr c,incsc0         ; too much, restore value.
+			tfr	x,d							; D=64 (not yet added)							; 		 sbc hl,bc           ; subtract from amount to add.
+			subd	,s								; subtract param regD
+			bcs	IncSc0						; if carry, restore X							; 		 jr c,incsc0         ; too much, restore value.
 																											; 		 pop af              ; delete the previous amount from the stack.
-																											; 		 push de             ; store column position.
-																											; 		 call incsc2         ; do the increment.
-																											; 		 pop de              ; restore column.
-																											; 		 jp incsc            ; repeat until all added.
-																											; incsc0 pop hl              ; restore previous value.
-																											; 		 ret
-																											; incsc2 ld a,(de)           ; get amount.
-																											; 		 inc a               ; add one to column.
-																											; 		 ld (de),a           ; write new column total.
-																											; 		 cp '9'+1            ; gone beyond range of digits?
-																											; 		 ret c               ; no, carry on.
-																											; 		 ld a,'0'            ; mae it zero.
-																											; 		 ld (de),a           ; write new column total.
-																											; 		 dec de              ; back one column.
-																											; 		 jr incsc2
+			tfr	d,x							; update amount not yet added
+			pshs	u								; save column pointer							; 		 push de             ; store column position.
+			bsr	IncSc2						; update current digit (=1)					; 		 call incsc2         ; do the increment.
+			puls	u								; restore column pointer						; 		 pop de              ; restore column.
+			puls	d								; get parcial in use
+			leas	2,s							; get rid of regX
+			bra	IncSc							; try again											; 		 jp incsc            ; repeat until all added.
+IncSc0	puls	x,d							; restore pushed registers						; incsc0 pop hl              ; restore previous value.
+			rts									; ended digit control							; 		 ret
+IncSc2	pshs	d								; save curent result
+IncSc2a	lda	,u								; get current digit								; incsc2 ld a,(de)           ; get amount.
+			inca									; increment it										; 		 inc a               ; add one to column.
+			sta	,u								; update digit										; 		 ld (de),a           ; write new column total.
+			cmpa	#'9'+1						; exceeded '9'?									; 		 cp '9'+1            ; gone beyond range of digits?
+			bcs	IncEx							; no, so ok, exit									; 		 ret c               ; no, carry on.
+			lda	#'0'							; yes, put a '0'									; 		 ld a,'0'            ; make it zero.
+			sta	,u								; update digit										; 		 ld (de),a           ; write new column total.
+			leau	-1,u							; point to letf digit							; 		 dec de              ; back one column.
+			bra	IncSc2a						; go increment it									; 		 jr incsc2
+IncEx		puls	d,pc							; clean stack and return
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 																											; Add bonus to score.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
@@ -2031,8 +2132,8 @@ Dscor2	ldx	<dispX							; get screen position (X,Y)					; dscor2 ld hl,(dispx)  
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; Get print address																					; Get print address
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-GPrad		lda	<dispY							; get Y	(row * 256)								; gprad  ld a,(dispx)        ; returns scr. add. in de.
-			ldb	<dispX							; get X												; 		 ld e,a              ; place in e for now.
+GPrad		lda	<dispY						; get Y	(row * 256)								; gprad  ld a,(dispx)        ; returns scr. add. in de.
+			ldb	<dispX						; get X												; 		 ld e,a              ; place in e for now.
 			addd	#SCRBEG						; add screen beginning							; 		 and 24              ; which of 3 segments do we need?
 			std	<grBase						; store address									; 		 add a,64            ; add 64 for start address of screen.
 																											; 		 ld d,a              ; that's our high byte.
@@ -2051,7 +2152,7 @@ GPrad		lda	<dispY							; get Y	(row * 256)								; gprad  ld a,(dispx)        
 ; receives in regA byte number. Returns address in regX
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 PrAdd		pshs	a,b							; save registers
-			lda	<dispY							; get coordinate Y								; pradd  ld a,(dispx)        ; x coordinate.
+			lda	<dispY						; get coordinate Y								; pradd  ld a,(dispx)        ; x coordinate.
 			ldb	#32							; multiply											; 		 rrca                ; multiply by 32.
 			mul									; by 32												; 		 rrca
 																											; 		 rrca
@@ -2062,7 +2163,7 @@ PrAdd		pshs	a,b							; save registers
 								 																			; 		 ld a,l              ; restore shift result.
 																											; 		 and 224             ; only want low bits.
 																											; 		 ld l,a              ; put into low byte.
-			ldb	<dispX							; get coordinate X								; 		 ld a,(dispy)        ; fetch y coordinate.
+			ldb	<dispX						; get coordinate X								; 		 ld a,(dispy)        ; fetch y coordinate.
 			andb	#31							; keep into 0-31 range							; 		 and 31              ; should be in range 0 - 31.
 			abx									; add X offset										; 		 add a,l             ; add to low byte.
 																											; 		 ld l,a              ; new low byte.
@@ -2070,22 +2171,22 @@ PrAdd		pshs	a,b							; save registers
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 																											; Get attribute address of char at (dispx, dispy) in hl.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; gaadd  ld a,(dispx)        ; x coordinate.
-																											; 		 rrca                ; multiply by 32.
-																											; 		 rrca
-																											; 		 rrca
-																											; 		 ld l,a              ; store shift in l.
-																											; 		 and 3               ; high byte bits.
-																											; 		 add a,88            ; 88 * 256 = 22528, start of screen attributes.
-																											; 		 ld h,a              ; that's our high byte.
-																											; 		 ld a,l              ; restore shift result.
-																											; 		 and 224             ; only want low bits.
-																											; 		 ld l,a              ; put into low byte.
-																											; 		 ld a,(dispy)        ; fetch y coordinate.
-																											; 		 and 31              ; should be in range 0 - 31.
-																											; 		 add a,l             ; add to low byte.
-																											; 		 ld l,a              ; new low byte.
-																											; 		 ret
+;																											; gaadd  ld a,(dispx)        ; x coordinate.
+;																											; 		 rrca                ; multiply by 32.
+;																											; 		 rrca
+;																											; 		 rrca
+;																											; 		 ld l,a              ; store shift in l.
+;																											; 		 and 3               ; high byte bits.
+;																											; 		 add a,88            ; 88 * 256 = 22528, start of screen attributes.
+;																											; 		 ld h,a              ; that's our high byte.
+;																											; 		 ld a,l              ; restore shift result.
+;																											; 		 and 224             ; only want low bits.
+;																											; 		 ld l,a              ; put into low byte.
+;																											; 		 ld a,(dispy)        ; fetch y coordinate.
+;																											; 		 and 31              ; should be in range 0 - 31.
+;																											; 		 add a,l             ; add to low byte.
+;																											; 		 ld l,a              ; new low byte.
+;																											; 		 ret
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; Display character in A at dispx,dispy.														; Display character in A at dispx,dispy.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
@@ -2196,19 +2297,19 @@ PChr		ldx	<blkPtr						; get blocks pointer
 PChr0		jsr	PChar							; print char in regA								; pchr   call pchar          ; show character in accumulator.
 			ldx	#font-256					; point to fonts table																	
 			stx	<fontPtr						; save into pointer								; 		 ld hl,dispy         ; y coordinate.
-			inc	<dispX							; move to next char								; 		 inc (hl)            ; move along one.
-			inc	<charX							; move to next char								; 		 inc (hl)            ; move along one.
+			inc	<dispX						; move to next char								; 		 inc (hl)            ; move along one.
+			inc	<charX						; move to next char								; 		 inc (hl)            ; move along one.
 			rts									; return												; 		 ret
 
 	IF AFLAG																								; .if aflag
 WBloc												; Write BLOCK										; wbloc:
-			ldx	<pbPtr							; get write pointer								; ldy	#3
+			ldx	<pbPtr						; get write pointer								; ldy	#3
 			sta	3,x							; store block number								; sta	(pbptr),y        ; store block number
 																											; dey
-			lda	<dispX							; get Y position									; lda	dispx
+			lda	<dispX						; get Y position									; lda	dispx
 			sta	2,x							; write Y block position						; sta	(pbptr),y        ; write x position of block.
 																											; dey
-			lda	<dispY							; get X position									; lda	dispy
+			lda	<dispY						; get X position									; lda	dispy
 			sta	1,x							; write X block position						; sta	(pbptr),y        ; write y position of block.
 																											; dey
 			lda	<scNo							; get screen number								; lda	scno
@@ -2218,7 +2319,7 @@ WBloc												; Write BLOCK										; wbloc:
 			leax	4,x							; point to next bloc								; adc	#4
 																											; sta	pbptr
 																											; bcc	:
-			stx	<pbPtr							; update pointer									; inc	pbptr+1
+			stx	<pbPtr						; update pointer									; inc	pbptr+1
 			rts									; return												;:			rts
 	ENDIF																									; .endif
 ; ------------------------------------------------------------------------------------------------------------------------------------------
@@ -2243,7 +2344,7 @@ Sprite	pshs	x								; save graphic address							; sprite push hl             ;
 			jsr	ScAdd							; get screen address in regX					; 		 call scadd          ; get screen address in hl.
 			leau	,x								; pass to regU										; 		 ex de,hl            ; switch to de.
 			puls	x								; restore regX										; 		 pop hl              ; restore graphic address.
-			lda	<dispY							; get posY											; 		 ld a,(dispy)        ; y position.
+			lda	<dispY						; get posY											; 		 ld a,(dispy)        ; y position.
 			anda	#7								; use only 3 low bits							; 		 and 7               ; position straddling cells.
 			sta	<reg_B						; save in reg_B									; 		 ld b,a              ; store in b register.
 			lda	#16							; number of rows									; 		 ld a,16             ; pixel height.
@@ -2324,7 +2425,7 @@ GRoom0	ldx	<scrPtr						; point to screens table						; groom0 ld hl,(scrptr)   
 ; Draw present room																					; Draw present room.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 DRoom		lda	<winTop						; get top of window								; droom  ld a,(wintop)       ; window top.
-			sta	<dispY							; put in Y coordinate							; 		 ld (dispx),a        ; set x coordinate.
+			sta	<dispY						; put in Y coordinate							; 		 ld (dispx),a        ; set x coordinate.
 DRoom2	ldx	<blkPtr						; point to blocks table							; droom2 ld hl,(blkptr)      ; blocks.
 			stx	<grBase						; copy to variable								; 		 ld (grbase),hl      ; set graphics base.
 			jsr	GRoom							; get address of current room					; 		 call groom          ; get address of current room.
@@ -2333,7 +2434,7 @@ DRoom2	ldx	<blkPtr						; point to blocks table							; droom2 ld hl,(blkptr)   
 			lda	<winHgt						; get window height								; 		 ld a,(winhgt)       ; height of window.
 DRoom0	pshs	a								; pass row counter into stack					; droom0 push af             ; store row counter.
 			lda	<winLft						; get window left edge							; 		 ld a,(winlft)       ; window left edge.
-			sta	<dispX							; put in X coordinate							; 		 ld (dispy),a        ; set cursor position.
+			sta	<dispX						; put in X coordinate							; 		 ld (dispy),a        ; set cursor position.
 			lda	<winWid						; get width of window							; 		 ld a,(winwid)       ; width of window.
 DRoom1	pshs	a								; pass column counter into stack				; droom1 push af             ; store column counter.
 			
@@ -2344,7 +2445,7 @@ DRoom1	pshs	a								; pass column counter into stack				; droom1 push af       
 			puls	a								; restore column counter						; 		 pop af              ; restore loop counter.
 			deca									; decrement it										; 		 dec a               ; one less column.
 			bne	DRoom1						; not yet done? loop for next block			; 		 jr nz,droom1        ; repeat for entire line.
-			inc	<dispY							; increment Y coordinate						; 		 ld a,(dispx)        ; x coord.
+			inc	<dispY						; increment Y coordinate						; 		 ld a,(dispx)        ; x coord.
 																											; 		 inc a               ; move down one line.
 																											; 		 ld (dispx),a        ; set new position.
 			puls	a								; restore row counter							; 		 pop af              ; restore row counter.
@@ -2603,7 +2704,7 @@ TDed0		ldd	<reg_DE
 			anda	#7																						; 		 and 7               ; is it straddling cells?
 			beq	TDed1																					; 		 jr z,tded1          ; no.
 			leax	1,x																					; 		 inc hl              ; last cell.
-			lda	1,x																					; 		 ld a,(hl)           ; fetch type.
+			lda	,x																					; 		 ld a,(hl)           ; fetch type.
 			cmpa	<reg_B																				; 		 cp b                ; is this fatal?
 			beq	TDedEx																				; 		 ret z               ; yes.
 TDed1		lda	<dispX																					; tded1  ld a,(dispx)        ; vertical position.
@@ -2628,33 +2729,34 @@ TDedEx	stx	<reg_HL
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; Fetch block type at (dispx, dispy)															; Fetch block type at (dispx, dispy).
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-TstBl		lda	<dispX																					; tstbl  ld a,(dispx)        ; fetch x coord.
-			asla																							; 		 rlca                ; divide by 8,
-			bcc	1f
+TstBl		lda	<dispX																				; tstbl  ld a,(dispx)        ; fetch x coord.
+			lsla									; to avoid bit7 being the same				; 		 rlca                ; divide by 8,
+													; was asla before
+			bcc	TstBl1
 			ora	#1
-1			asla																							; 		 rlca                ; and multiply by 32.
-			bcc	2f
+TstBl1	lsla									; to avoid bit7 being the same				; 		 rlca                ; and multiply by 32.
+													; was asla before
+			bcc	TstBl2
 			ora	#1
-2			sta	<reg_D																				; 		 ld d,a              ; store in d.
+TstBl2	sta	<reg_D																				; 		 ld d,a              ; store in d.
 			anda	#224																					; 		 and 224             ; mask off high bits.
 			sta	<reg_E																				; 		 ld e,a              ; low byte.
 			lda	<reg_D																				; 		 ld a,d              ; restore shift result.
 			anda	#3																						; 		 and 3               ; high bits.
 			sta	<reg_D																				; 		 ld d,a              ; got displacement in de.
-			lda	<dispY																					; 		 ld a,(dispy)        ; y coord.
+			lda	<dispY																				; 		 ld a,(dispy)        ; y coord.
 			rora																							; 		 rra                 ; divide by 8.
 			rora																							; 		 rra
 			rora																							; 		 rra
 			anda	#31																					; 		 and 31              ; only want 0 - 31.
 			adda	<reg_E																				; 		 add a,e             ; add to displacement.
 			sta	<reg_E																				; 		 ld e,a              ; displacement in de.
-			pshs	x
 			ldx	#MAP																					; 		 ld hl,MAP           ; position of dummy screen.
 			ldd	<reg_DE																				; 		 add hl,de           ; point to address.
 			leax	d,x																					
 			stx	<reg_HL
 			lda	,x																						; 		 ld a,(hl)           ; fetch byte there.
-			puls	x,pc																					; 		 ret
+			rts																							; 		 ret
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 																											; Jump - if we can.
 																											; Requires initial speed to be set up in accumulator prior to call.
@@ -2698,18 +2800,36 @@ HopEx		rts																							; 		 ret
 																											; Random numbers code.
 																											; Pseudo-random number generator, 8-bit.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
+; TO BE CONVERTED - #06 - DONE
+Random	
 																											; random ld hl,seed          ; set up seed pointer.
 																											; 		 ld a,(hl)           ; get last random number.
 																											; 		 ld b,a              ; copy to b register.
 																											; 		 rrca                ; multiply by 32.
+
+
+
 																											; 		 rrca
+
+
+
 																											; 		 rrca
+
+
+
 																											; 		 xor 31
 																											; 		 add a,b
 																											; 		 sbc a,255
 																											; 		 ld (hl),a           ; store new seed.
 																											; 		 ld (varrnd),a       ; return number in variable.
-																											; 		 ret
+			lda	<seed
+			beq	doEor
+			lsla
+			beq	noEor
+			bcc	noEor
+doEor		eora	#$1d
+noEor		sta	<seed
+			rts									; return												; 		 ret
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; Keyboard test routine. 																			; Keyboard test routine.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
@@ -2899,7 +3019,7 @@ AudiOn	lda	#8								; bit 3 of ACA = 1 enable analog MUX
 ;																											; 		 ret
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; Display message																						; Display message
-; Input:  regB = message number
+; Input:  regA = message number
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 Dmsg																										; ;dmsg   ld hl,nummsg     ; total messages.
 																											; ;       cp (hl)          ; does this one exist?
@@ -2929,13 +3049,13 @@ Dmsg2		puls	x								; restore pointer									; dmsg2  pop hl
 			lbmi 	Dscor2						; if it is the end, exit						; 		 jp c,dscor2         ; yes, job done.
 			leax	1,x							; next character to display					; 		 inc hl              ; next character to display.
 			bra 	Dmsg0							; go process it									;		 jr dmsg0
-Dmsg1		inc	<dispY							; increment to next line						; dmsg1  ld hl,dispx         ; x coordinate.
-			lda	<dispY							; get line pos										; 		 inc (hl)            ; newline.
+Dmsg1		inc	<dispY						; increment to next line						; dmsg1  ld hl,dispx         ; x coordinate.
+			lda	<dispY						; get line pos										; 		 inc (hl)            ; newline.
 			cmpa	#24							; is it last one?									; 		 ld a,(hl)           ; fetch position.
 			bcs	Dmsg4							; no, skip next									; 		 cp 24               ; past screen edge?
-			clr	<dispY							; yes, set 1st row								; 		 jr dmsg2
+			clr	<dispY						; yes, set 1st row								; 		 jr dmsg2
 																											; 		 ld (hl),0           ; restart at top.
-Dmsg4		clr	<dispX							; set first column								; dmsg4  inc hl              ; y coordinate.
+Dmsg4		clr	<dispX						; set first column								; dmsg4  inc hl              ; y coordinate.
 																											; 		 ld (hl),0           ; carriage return.
 			bra	Dmsg2							; process next char								;      jr dmsg2
 ; ------------------------------------------------------------------------------------------------------------------------------------------
@@ -2956,13 +3076,13 @@ Bmsg3		puls	x
 																											; 		 rla                 ; was terminator flag set?
 																											; 		 jr nc,bmsg1         ; no, keep going.
 			rts									; return												; 		 ret
-Bmsg2		clr	<dispX							; column zero										; bmsg2  ld hl,charx         ; x coordinate.
-			inc	<dispY							; add two											; 		 inc (hl)            ; newline.
-			inc	<dispY							; rows												; 		 inc (hl)            ; newline.
-			lda	<dispY							; get value											; 		 ld a,(hl)           ; fetch position.
+Bmsg2		clr	<dispX						; column zero										; bmsg2  ld hl,charx         ; x coordinate.
+			inc	<dispY						; add two											; 		 inc (hl)            ; newline.
+			inc	<dispY						; rows												; 		 inc (hl)            ; newline.
+			lda	<dispY						; get value											; 		 ld a,(hl)           ; fetch position.
 			cmpa	#23  							; past screen end?								; 		 cp 23               ; past screen edge?
 			bcs	Bmsg3							; no, go for next char							; 		 jr c,bmsg3          ; no, it's okay.
-			clr	<dispY							; go first row										; 		 ld (hl),0           ; restart at top.
+			clr	<dispY						; go first row										; 		 ld (hl),0           ; restart at top.
 																											; 		 inc hl              ; y coordinate.
 																											; 		 ld (hl),0           ; carriage return.
 			bra	Bmsg3							; go for next char								; 		 jr bmsg3
@@ -3009,7 +3129,7 @@ Bchar0	lda	,u+							; get char row byte								; 		 ld e,a              ; that'
 																											; 		 ld (hl),c           ; set second cell's attributes.
 Bchar1	jsr	NexPos						; display position.								; bchar1 call nexpos         ; display position.
 			bne	Bchar2 						; not on a new line.								; 		 jp nz,bchar2        ; not on a new line.
-Bchar3	inc	<dispY							; increment Y										; bchar3 inc (hl)            ; newline.
+Bchar3	inc	<dispY						; increment Y										; bchar3 inc (hl)            ; newline.
 			jsr	NexLin 						; next line check									; 		 call nexlin         ; next line check.
 Bchar2	puls	x
 			jmp	Dscor2						; exit												; bchar2 jp dscor2           ; tidy up line and column variables.
@@ -3031,7 +3151,7 @@ Bchar2	puls	x
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; Get next print column position.																; Get next print column position.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-NexPos	inc	<dispX							; move along one position						; nexpos ld hl,dispy         ; display position.
+NexPos	inc	<dispX						; move along one position						; nexpos ld hl,dispy         ; display position.
 			lda	<dispX 						; get coordinate									; 		 ld a,(hl)           ; get coordinate.
 			anda	#31							; keep them between 0-31						; 		 inc a               ; move along one position.
 																											; 		 and 31              ; reached edge of screen?
@@ -3046,7 +3166,7 @@ NexLin	lda	<dispY 						; get vertical position							; nexlin inc (hl)         
 			cmpa	#24							; past screen edge?								; 		 cp 24               ; past screen edge?
 			bcs	NL01							; no, exit updating								; 		 ret c               ; no, still okay.
 			clra									; restart at top.									; 		 ld (hl),0           ; restart at top.
-NL01		sta	<dispY							; update variable									; 		 ret
+NL01		sta	<dispY						; update variable									; 		 ret
 			rts									; return
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; Pre-print preliminaries.																			; Pre-print preliminaries.
@@ -3054,69 +3174,72 @@ NL01		sta	<dispY							; update variable									; 		 ret
 PrePrt	ldd	<fontPtr						; get font pointer.								; preprt ld de,(23606)       ; font pointer.
 			std	<grBase						; put into graphics base.						; 		 ld (grbase),de      ; set up graphics base.
 Prescr	ldd	<charX 						; get display coordinates.						; prescr ld de,(charx)       ; display coordinates.
-			std	<dispX							; update general coordinates.			 		; 		 ld (dispx),de       ; set up general coordinates.
+			std	<dispX						; update general coordinates.			 		; 		 ld (dispx),de       ; set up general coordinates.
 			rts									; return												; 		 ret
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; Return message pointer in regX
 ; Input: regX = pointer to message list beginning 											; On entry: hl points to word list
-;  		regB = message number 																	;           a contains word number.
+;  		regA = message number 																	;           a contains word number.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-GetWrd	tstb									; first message?									; getwrd and a               ; first word in list?
+GetWrd	tsta									; first message?									; getwrd and a               ; first word in list?
 			beq	GetWd1						; yes, exit											; 		 ld b,a
 																											; getwd0 ld a,(hl)
 GetWd0	tst	,x+							; found end?			 							; 		 inc hl
 			bpl 	GetWd0						; no, carry on										; 		 cp 128              ; found end?
-			decb									; decrement mesg counter		 				; 		 jr c,getwd0         ; no, carry on.
+			deca									; decrement mesg counter		 				; 		 jr c,getwd0         ; no, carry on.
 			bne 	GetWd0						; not done? loop									; 		 djnz getwd0         ; until we have right number.
 GetWd1	rts									; return												;      ret
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; Bubble sort																							; Bubble sort.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-BSort		ldb	#NUMSPR-1																			; bsort  ld b,NUMSPR - 1     ; sprites to swap.
-			ldy	#sprTab																				; 		 ld ix,sprtab        ; sprite table.
+BSort		ldb	#NUMSPR-1					; sprites to compare								; bsort  ld b,NUMSPR - 1     ; sprites to swap.
+			ldy	#sprTab						; point to sprites data table					; 		 ld ix,sprtab        ; sprite table.
 BSort0																									; bsort0 push bc             ; store loop counter for now.
-			lda	,y																						; 		 ld a,(ix+0)         ; first sprite type.
-			inca																							; 		 inc a               ; is it switched off?
-			beq	Swemp																					; 		 jr z,swemp          ; yes, may need to switch another in here.
-			lda	TABSIZ,y																				; 		 ld a,(ix+TABSIZ)    ; check next slot exists.
-			inca																							; 		 inc a               ; is it enabled?
-			beq	BSort2																				; 		 jr z,bsort2         ; no, nothing to swap.
-			lda	TABSIZ,y																			; 		 ld a,(ix+(3+TABSIZ)); fetch next sprite's coordinate.
-			cmpa	,y																					; 		 cp (ix+3)           ; compare with this x coordinate.
-			bcs	BSort1																				; 		 jr c,bsort1         ; next sprite is higher - may need to switch.
+			lda	,y								; get 1st sprite type							; 		 ld a,(ix+0)         ; first sprite type.
+			inca									; is it disabled?									; 		 inc a               ; is it switched off?
+			beq	Swemp							; yes, verify if next is enabled?			; 		 jr z,swemp          ; yes, may need to switch another in here.
+			lda	TABSIZ,y						; get 2nd sprite type							; 		 ld a,(ix+TABSIZ)    ; check next slot exists.
+			inca									; is it disabled?									; 		 inc a               ; is it enabled?
+			beq	BSort2						; yes, move 1st pointer one ahead			; 		 jr z,bsort2         ; no, nothing to swap.
+;;T			lda	TABSIZ+3,y						; get Y coordinate for next sprite			; 		 ld a,(ix+(3+TABSIZ)); fetch next sprite's coordinate.
+			lda	TABSIZ,y						; get 2nd sprite type							; 		 ld a,(ix+(3+TABSIZ)); fetch next sprite's coordinate.
+;;T			cmpa	3,y								; compare to actual sprite						; 		 cp (ix+3)           ; compare with this x coordinate.
+			cmpa	,y								; compare to 1st one								; 		 cp (ix+3)           ; compare with this x coordinate.
+;;T			bcs	BSort1																				; 		 jr c,bsort1         ; next sprite is higher - may need to switch.
+			bcs	BSortX						; if next is lower, go swap them				; 		 jr c,bsort1         ; next sprite is higher - may need to switch.
 BSort2																									; bsort2 ld de,TABSIZ        ; distance to next odd/even entry.
-			leay	TABSIZ,y																				; 		 add ix,de           ; next sprite.
-			decb																							; 		 pop bc              ; retrieve loop counter.
-			bne	BSort0																				; 		 djnz bsort0         ; repeat for remaining sprites.
-			rts																							; 		 ret
-BSort1	lda	TABSIZ,y																				; bsort1 ld a,(ix+TABSIZ)    ; sprite on/off flag.
-			inca																							; 		 inc a               ; is it enabled?
-			beq	BSort2																				; 		 jr z,bsort2         ; no, nothing to swap.
-			bsr	SwSpr																					; 		 call swspr          ; swap positions.
-			bra	BSort2																				; 		 jr bsort2
-Swemp		lda	TABSIZ,y																				; swemp  ld a,(ix+TABSIZ)    ; next table entry.
-			inca																							; 		 inc a               ; is that one on?
-			beq	BSort2																				; 		 jr z,bsort2         ; no, nothing to swap.
-			bsr	SwSpr																					; 		 call swspr          ; swap positions.
-			bra	BSort2																				; 		 jr bsort2
+			leay	TABSIZ,y						; move 1st pointer one ahead					; 		 add ix,de           ; next sprite.
+			decb									; decrement counter								; 		 pop bc              ; retrieve loop counter.
+			bne	BSort0						; not yet done, loopback						; 		 djnz bsort0         ; repeat for remaining sprites.
+			rts									; return														; 		 ret
+;;TBSort1											; not needed									; bsort1 ld a,(ix+TABSIZ)    ; sprite on/off flag.
+														; not needed									; 		 inc a               ; is it enabled?
+														; not needed									; 		 jr z,bsort2         ; no, nothing to swap.
+														; not needed									; 		 call swspr          ; swap positions.
+														; not needed									; 		 jr bsort2
+Swemp		lda	TABSIZ,y						; get 2nd sprite type							; swemp  ld a,(ix+TABSIZ)    ; next table entry.
+			inca									; is it disabled?									; 		 inc a               ; is that one on?
+			beq	BSort2						; yes, move 1st pointer one ahead			; 		 jr z,bsort2         ; no, nothing to swap.
+BSortX	bsr	SwSpr							; swap sprites position							; 		 call swspr          ; swap positions.
+			bra	BSort2						; move 1st pointer one ahead					; 		 jr bsort2
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; Swap sprites																							; Swap sprites.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 SwSpr		pshs	b,y							; save working registers						; swspr  push ix             ; table address on stack.
-			leax	,y								; X acts as HL										; 		 pop hl              ; pop into hl pair.
-			leau	,x								; U acts as DE										; 		 ld d,h              ; copy to de pair.
+																											; 		 pop hl              ; pop into hl pair.
+			leau	,y								; regU points to 1st sprite (reg_DE)		; 		 ld d,h              ; copy to de pair.
 																											; 		 ld e,l
 																											; 		 ld bc,TABSIZ        ; distance to second entry.
-			leax	TABSIZ,x						; point to second sprite entry				; 		 add hl,bc           ; point to second sprite entry.
-			ldy	#TABSIZ						; bytes to swap									; 		 ld b,TABSIZ         ; bytes to swap.
-SwSpr0	ldb	,x								; get a byte from 1nd sprite					; swspr0 ld c,(hl)           ; fetch second byte.
-			lda	,u								; get a byte from first sprite				; 		 ld a,(de)           ; fetch first byte.
-			sta	,x+							; interchange										; 		 ld (hl),a           ; copy to second.
-			stb	,u+							; them												; 		 ld a,c              ; second byte in accumulator.
+			leax	TABSIZ,y						; X points to 2nd sprite (reg_HL)			; 		 add hl,bc           ; point to second sprite entry.
+			ldy	#TABSIZ						; bytes to swap (counter)						; 		 ld b,TABSIZ         ; bytes to swap.
+SwSpr0	ldb	,x								; get a byte from 2nd sprite					; swspr0 ld c,(hl)           ; fetch second byte.
+			lda	,u								; get a byte from 1st sprite					; 		 ld a,(de)           ; fetch first byte.
+			sta	,x+							; interchange them								; 		 ld (hl),a           ; copy to second.
+			stb	,u+							; advancing pointers								; 		 ld a,c              ; second byte in accumulator.
 																											; 		 ld (de),a           ; copy to first sprite entry.
 																											; 		 inc de              ; next byte.
-			leay	-1,y							; decrement counter								; 		 inc hl              ; next byte.
-			bne	SwSpr0						; not yet done, loopback						; 		 djnz swspr0         ; swap all bytes in table entry.
+			leay	-1,y							; decrement byte counter						; 		 inc hl              ; next byte.
+			bne	SwSpr0						; not yet done? swap next byte				; 		 djnz swspr0         ; swap all bytes in table entry.
 			puls	b,y,pc						; restore registers and return				; 		 ret
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; Process sprites																						; Process sprites.
@@ -3135,10 +3258,10 @@ PSprNo																									; 		 ld de,TABSIZ        ; distance to next odd/e
 			leas	1,s							; clean stack
 			rts									; return												; 		 ret
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-PSpr2		stx	<ogPtr							; save pointer										; pspr2  ld (ogptr),ix       ; store original sprite pointer.
+PSpr2		stx	<ogPtr						; save pointer										; pspr2  ld (ogptr),ix       ; store original sprite pointer.
 			stx	<reg_IX
 			jsr	PSpr3							; execute the proper routine					; 		 call pspr3          ; do the routine.
-RtOrg		ldx	<ogPtr							; restore pointer									; rtorg  ld ix,(ogptr)       ; restore original pointer to sprite.
+RtOrg		ldx	<ogPtr						; restore pointer									; rtorg  ld ix,(ogptr)       ; restore original pointer to sprite.
 RtOrg0	rts									; return												; rtorg0 ret
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 PSpr3		ldx	#EvTyp0						; point to sprite's events list				; pspr3  ld hl,evtyp0        ; sprite type events list.
@@ -3186,10 +3309,10 @@ DSpr2		ldx	<reg_IX																				; dspr2  push ix             ; put ix on s
 													; copy 5 bytes from new to old				; 		 ld bc,5             ; distance to new type.
 			ldd	5,x							; get new type and image						; 		 add hl,bc           ; point to new properties.
 			std	,x								; copy to old positions							; 		 ldi                 ; copy to old positions.
-			ldd	7,x							; get frame and posX								; 		 ldi
-			std	2,x							; to old												; 		 ldi
-			lda	9,x							; and posY											; 		 ldi
-			sta	4,x							; to old												; 		 ldi
+			ldd	7,x							; get new frame and pos Y
+			std	2,x							; to old
+			lda	9,x							; and pos X
+			sta	4,x							; to old
 			ldb	#TABSIZ*2					; to skip over two sprites						; 		 ld c,TABSIZ*2       ; distance to next odd/even entry.
 			leax	b,x							; point to next odd/even sprite				; 		 add ix,bc           ; next sprite.
 			puls	b								; restore counter									; 		 pop bc              ; retrieve loop counter.
@@ -3207,17 +3330,18 @@ DSpr6		jsr	SSpriA						; show a single sprite							; dspr6  call sspria        
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; Displaying two sprites.  Don't bother redrawing if nothing has changed			; Displaying two sprites.  Don't bother redrawing if nothing has changed.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-DSpr4		lda	4,x							; get old posY										; dspr4  ld a,(ix+4)         ; old y.
-			cmpa	9,x							; same as new?										; 		 cp (ix+9)           ; compare with new value.
+DSpr4		ldd	3,x							; get Y and X old Pos							; dspr4  ld a,(ix+4)         ; old y.
+			cmpd	8,x							; are equal to new  Y and X?					; 		 cp (ix+9)           ; compare with new value.
 			bne	DSpr7							; no, need to redraw								; 		 jr nz,dspr7         ; they differ, need to redraw.
-			lda	3,x							; get old posX										; 		 ld a,(ix+3)         ; old x.
-			cmpa	8,x							; same as new?										; 		 cp (ix+8)           ; compare against new value.
-			bne	DSpr7							; no, need to redraw								; 		 jr nz,dspr7         ; they differ, need to redraw.
-			lda	2,x							; get old frame									; 		 ld a,(ix+2)         ; old frame.
-			cmpa	7,x							; same as new?										; 		 cp (ix+7)           ; compare against new value.
-			bne	DSpr7							; no, need to redraw								; 		 jr nz,dspr7         ; they differ, need to redraw.
-			lda	1,x							; get old image									; 		 ld a,(ix+1)         ; old image.
-			cmpa	6,x							; same as new?										; 		 cp (ix+6)           ; compare against new value.
+																											; 		 ld a,(ix+3)         ; old x.
+																											; 		 cp (ix+8)           ; compare against new value.
+																											; 		 jr nz,dspr7         ; they differ, need to redraw.
+
+			ldd	1,x							; get old imagea and frame						; 		 ld a,(ix+2)         ; old frame.
+			cmpd	6,x							; are equal to new ones?						; 		 cp (ix+7)           ; compare against new value.
+																											; 		 jr nz,dspr7         ; they differ, need to redraw.
+																											; 		 ld a,(ix+1)         ; old image.
+																											; 		 cp (ix+6)           ; compare against new value.
 			beq	DSpr2							; yes, so NO redrawing							; 		 jp z,dspr2          ; everything is the same, don't redraw.
 DSpr7		jsr	SSpriC						; delete old, draw new							; dspr7  call sspric         ; delete old sprite, draw new one simultaneously.
 			bra	DSpr2							; loopback											; 		 jp dspr2
@@ -3232,7 +3356,7 @@ DSpr3		stx	<reg_IX
 GSprAN	ldu	<reg_IX						; regU=IX
 			ldb	8,u							; get new coordinates							; gspran ld l,(ix+8)         ; new x coordinate.
 			lda	9,u							; inverted											; 		 ld h,(ix+9)         ; new y coordinate.
-			std	<dispX							; put into variables								; 		 ld (dispx),hl       ; set display coordinates.
+			std	<dispX						; put into variables								; 		 ld (dispx),hl       ; set display coordinates.
 			lda	6,u							; get new image									; 		 ld a,(ix+6)         ; new sprite image.
 			jsr	GFrm							; fetch start frame in regX					; 		 call gfrm           ; fetch start frame for this sprite.
 			lda	,x								; get frame											; 		 ld a,(hl)           ; frame in accumulator.
@@ -3245,8 +3369,8 @@ GSprAN	ldu	<reg_IX						; regU=IX
 GSprAd	leau	,x								; regU takes the rol of reg_IX
 			stu	<reg_IX						; save reg_IX for later use
 			ldd	3,u							; get old posXY									; gsprad ld l,(ix+3)         ; x coordinate.
-			sta	<dispY							; put into											; 		 ld h,(ix+4)         ; y coordinate.
-			stb	<dispX							; variables											; 		 ld (dispx),hl       ; set display coordinates.
+			sta	<dispY						; put into											; 		 ld h,(ix+4)         ; y coordinate.
+			stb	<dispX						; variables											; 		 ld (dispx),hl       ; set display coordinates.
 			lda	1,u							; get old image									; 		 ld a,(ix+1)         ; sprite image.
 			jsr	GFrm							; fetch start frame in regX					; 		 call gfrm           ; fetch start frame for this sprite.
 			lda	,x								; get frame											; 		 ld a,(hl)           ; frame in accumulator.
@@ -3264,7 +3388,7 @@ GSp01		sta	<reg_D						; save result in reg_D							; 		 ld d,a              ; s
 			ldx	#sprGfx						; point to sprites data beginning			; 		 ld hl,sprgfx        ; address of play sprites.
 			ldd	<reg_DE						; get offset
 			leax	d,x							; point to right frame							; 		 add hl,de           ; point to frame.
-			ldb	<dispX							; get Y coordinate								; 		 ld a,(dispy)        ; y coordinate.
+			ldb	<dispX						; get Y coordinate								; 		 ld a,(dispy)        ; y coordinate.
 			andb	#%00000110					; position within byte boundary				; 		 and 6               ; position within byte boundary.
 			stb	<reg_C						; low byte of table displacement				; 		 ld c,a              ; low byte of table displacement.
 			aslb									; four												; 		 rlca                ; multiply by 32.
@@ -3290,13 +3414,13 @@ GSp01		sta	<reg_D						; save result in reg_D							; 		 ld d,a              ; s
 ; when used for Objects, posY and dispX arrive INVERTED!
 ; but for Sprites arrive NORAML
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-ScAdd		ldb	<dispY							; get posY											; scadd  ld a,(dispx)        ; coordinate.
+ScAdd		ldb	<dispY						; get posY											; scadd  ld a,(dispx)        ; coordinate.
 			lda	#SCADTB/256					; get high byte of table						; 		 ld l,a              ; low byte of table.
 			tfr	d,x							; pass to regX										; 		 ld h,251            ; high byte of 64256 (SCADTB).
 			lda	,x+							; fetch high byte of mostleft byte in row	; 		 ld a,(hl)           ; fetch high byte.
 			ldb	255,x							; fetch low byte of mostleft byte in row	; 		 inc h               ; point to low byte table.
 			std	<reg_HL						; save in reg_HL									; 		 ld l,(hl)           ; fetch low byte.
-			lda	<dispX							; get posX											; 		 ld h,a              ; hl points to start of line.
+			lda	<dispX						; get posX											; 		 ld h,a              ; hl points to start of line.
 			lsra									; divide												; 		 ld a,(dispy)        ; y pixel coordinate.
 			lsra									; by													; 		 rrca                ; divide by 8.
 			lsra									; 8													; 		 rrca
@@ -3308,149 +3432,222 @@ ScAdd		ldb	<dispY							; get posY											; scadd  ld a,(dispx)        ; coor
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 spMask	fcb	255,0,63,192,15,240,3,252														; spmask defb 255,0,63,192,15,240,3,252
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-; These are the sprite routines.																	; These are the sprite routines.
-; SSpriA = single sprite, old (ix).																; spria = single sprite, old (ix).
-; SSpriB = single sprite, new (ix+5).															; ssprib = single sprite, new (ix+5).
-; SSpriC = both sprites, old (ix) and new (ix+5).											; sspric = both sprites, old (ix) and new (ix+5).
-; ------------------------------------------------------------------------------------------------------------------------------------------
-SSpriA	jsr	GSprAd						; get old sprite address						; sspria call gsprad         ; get old sprite address.
-SSpri2	lda	#16							; number of rows									; sspri2 ld a,16             ; vertical lines.
-SSpri0	sta	<reg_AF						; store reg_A										; sspri0 ex af,af'           ; store line counter away in alternate registers.
-			jsr	DLine							; draw a line										; 		 call dline          ; draw a line.
-			lda	<reg_AF						; restore reg_A									; 		 ex af,af'           ; restore line counter.
-			deca									; decrement counter								; 		 dec a               ; one less to go.
-			bne	SSpri0						; not zero, loopback								; 		 jp nz,sspri0
-			rts									; return												; 		 ret
-; ------------------------------------------------------------------------------------------------------------------------------------------
-SSpriB	jsr	GSprAN						; get new sprite address						; ssprib call gspran         ; get new sprite address.
-			bra	SSpri2						; go draw it										; 		 jp sspri2
-; ------------------------------------------------------------------------------------------------------------------------------------------
-SSpriC	jsr	GSprAd						; get old sprite address						; sspric call gsprad         ; get old sprite address.
-			jsr	do_exx						; store addresses (BC,DE,HL)					; 		 exx                 ; store addresses.
-			jsr	GSprAN						; get new sprite address						; 		 call gspran         ; get new sprite addresses.
-			lda	#15
-			pshs	a
-SSLoop	jsr	DLine							; draw a line										; 		 call dline          ; draw a line.
-			jsr	do_exx						; restore old addresses							; 		 exx                 ; restore old addresses.
-			jsr	DLine							; delete a line									; 		 call dline          ; delete a line.
-			jsr	do_exx						; flip to new addresses							; 		 exx                 ; flip to new sprite addresses.
-			dec	,s								; decrement counter								; 		 call dline          ; draw a line.
-			bne	SSLoop						; not yet done, loopback						; 		 exx                 ; restore old addresses.
-			leas	1,s							; discard counter									; 		 call dline          ; delete a line.
-																											; 		 exx                 ; flip to new sprite addresses.
-			jsr	DLine							; draw a line										; 		 call dline          ; draw a line.
-			jsr	do_exx						; restore old addresses							; 		 exx                 ; restore old addresses.
-																											; 		 call dline          ; delete a line.
-																											; 		 exx                 ; flip to new sprite addresses.
-																											; 		 call dline          ; draw a line.
-																											; 		 exx                 ; restore old addresses.
-																											; 		 call dline          ; delete a line.
-																											; 		 exx                 ; flip to new sprite addresses.
-																											; 		 call dline          ; draw a line.
-																											; 		 exx                 ; restore old addresses.
-																											; 		 call dline          ; delete a line.
-																											; 		 exx                 ; flip to new sprite addresses.
-																											; 		 call dline          ; draw a line.
-																											; 		 exx                 ; restore old addresses.
-																											; 		 call dline          ; delete a line.
-																											; 		 exx                 ; flip to new sprite addresses.
-																											; 		 call dline          ; draw a line.
-																											; 		 exx                 ; restore old addresses.
-																											; 		 call dline          ; delete a line.
-																											; 		 exx                 ; flip to new sprite addresses.
-																											; 		 call dline          ; draw a line.
-																											; 		 exx                 ; restore old addresses.
-																											; 		 call dline          ; delete a line.
-																											; 		 exx                 ; flip to new sprite addresses.
-																											; 		 call dline          ; draw a line.
-																											; 		 exx                 ; restore old addresses.
-																											; 		 call dline          ; delete a line.
-																											; 		 exx                 ; flip to new sprite addresses.
-																											; 		 call dline          ; draw a line.
-																											; 		 exx                 ; restore old addresses.
-																											; 		 call dline          ; delete a line.
-																											; 		 exx                 ; flip to new sprite addresses.
-																											; 		 call dline          ; draw a line.
-																											; 		 exx                 ; restore old addresses.
-																											; 		 call dline          ; delete a line.
-																											; 		 exx                 ; flip to new sprite addresses.
-																											; 		 call dline          ; draw a line.
-																											; 		 exx                 ; restore old addresses.
-																											; 		 call dline          ; delete a line.
-																											; 		 exx                 ; flip to new sprite addresses.
-																											; 		 call dline          ; draw a line.
-																											; 		 exx                 ; restore old addresses.
-																											; 		 call dline          ; delete a line.
-																											; 		 exx                 ; flip to new sprite addresses.
-																											; 		 call dline          ; draw a line.
-																											; 		 exx                 ; restore old addresses.
-																											; 		 call dline          ; delete a line.
-																											; 		 exx                 ; flip to new sprite addresses.
-																											; 		 call dline          ; draw a line.
-																											; 		 exx                 ; restore old addresses.
-																											; 		 call dline          ; delete a line.
-																											; 		 exx                 ; flip to new sprite addresses.
-																											; 		 call dline          ; draw a line.
-																											; 		 exx                 ; restore old addresses.
-; ------------------------------------------------------------------------------------------------------------------------------------------
-; Drop through.																						; Drop through.
-; Line drawn, now work out next target address												; Line drawn, now work out next target address.
-; receives reg_BC=right-left mask
-;			  reg_DE=spriteAddress - reg_HL=screenAddress
-; ------------------------------------------------------------------------------------------------------------------------------------------
-DLine		ldd	<reg_HL						; get screen pointer
-			cmpd	#$e600						; is it out of screen?
-			bcc	DLin01						; no, skip next
-			rts									; yes, do nothing and exit
-DLin01	lda	[reg_DE]						; get graphic byte								; dline  ld a,(de)           ; graphic data.
-			anda	<reg_C						; mask out what's not needed					; 		 and c               ; mask away what's not needed.
-			eora	[reg_HL]						; eor with what's there							; 		 xor (hl)            ; XOR with what's there.
-			sta	[reg_HL]						; put to destination								; 		 ld (hl),a           ; bung it in.
-			inc	<reg_L						; next screen										; 		 inc l               ; next screen address.
-			inc	<reg_L						; address											; 		 inc l               ; next screen address.
-			lda	[reg_DE]						; get data											; 		 ld a,(de)           ; fetch data.
-			anda	<reg_B						; mask out											; 		 and b               ; mask away unwanted bits.
-			eora	[reg_HL]						; eor 												; 		 xor (hl)            ; XOR with what's there.
-			sta	[reg_HL]						; put to destination								; 		 ld (hl),a           ; bung it in.
-			ldd	<reg_DE						; point
-			addd	#1								; to next
-			std	<reg_DE						; graphic											; 		 inc de              ; next graphic.
-			dec	<reg_L						; one char left to the cell					; 		 dec l               ; one character cell to the left.
-			lda	[reg_DE]						; second byte of data							; 		 ld a,(de)           ; second bit of data.
-			eora	[reg_HL]						; eor													; 		 xor (hl)            ; XOR with what's there.
-			sta	[reg_HL]						; put to destination								; 		 ld (hl),a           ; bung it in.
-			ldd	<reg_DE						; point  
-			addd	#1								; to next
-			std	<reg_DE						; line of data										; 		 inc de              ; point to next line of data.
-			dec	<reg_L						; another char left								; 		 dec l               ; another char left.
-; ------------------------------------------------------------------------------------------------------------------------------------------
-; Line drawn, now work out next target address												; Line drawn, now work out next target address.
-; ------------------------------------------------------------------------------------------------------------------------------------------
-NLine		pshs	d								; save working register
-			ldd	<reg_HL						; get prior row leftmost byte					; nline  inc h             ; increment pixel.
-			addd	#32							; to calculate next one							; 		 ld a,h              ; get pixel address.
-																											; 		 and 7               ; straddling character position?
-																											; 		 ret nz              ; no, we're on next line already.
-																											; 		 ld a,h              ; get pixel address.
-																											; 		 sub 8               ; subtract 8 for start of segment.
-																											; 		 ld h,a              ; new high byte of address.
-																											; 		 ld a,l              ; get low byte of address.
-																											; 		 add a,32            ; one line down.
-																											; 		 ld l,a              ; new low byte.
-																											; 		 ret nc              ; not reached next segment yet.
-																											; 		 ld a,h              ; address high.
-																											; 		 add a,8             ; add 8 to next segment.
-			cmpa	#$fe							; end of screen?									; 		 ld h,a              ; new high byte.
-			bcs	NLEx01						; no, skip next									; 		 cp 88               ; reached end of screen?
-			lda	#$80							; point to ROM (now in RAM)					; 		 ret c               ; not yet.
-NLEx01	std	<reg_HL						; save calculated address						; 		 ld h,56             ; back to ROM.
-			puls	d,pc							; return												; 		 ret
-; ------------------------------------------------------------------------------------------------------------------------------------------
+; These are the sprite routines.														; These are the sprite routines.
+; sspria = single sprite, old (ix).													; sspria = single sprite, old (ix).
+; ssprib = single sprite, new (ix+5).												; ssprib = single sprite, new (ix+5).
+; sspric = both sprites, old (ix) and new (ix+5).								; sspric = both sprites, old (ix) and new (ix+5).
+;-----------------------------------------------------------------		;-----------------------------------------------------------------
+; regU is used as pointer to 'new/old' sprite
+; So no need for self modifying code
+;-----------------------------------------------------------------		;-----------------------------------------------------------------
+SSpriA											;											sspria:
+			jsr	GSprAd						; get old sprite address				jsr gsprad			; get old sprite address.
+													; returns reg_BC=right-left byte mask 
+													; and reg_DE=spriteframe address
+SSpri2	stx	<reg_HL						; save screen address						
+												; draw the sprite							sspri2:
+;;O			ldd	<reg_DE						; get old sprite address				lda z80_e
+;;O			std	DLine1+1						; modify code								sta dline1+1		; Set spritedata address
+			ldu	<reg_DE						; get old sprite address				lda z80_e
+;;O			std	DLine2+1						; for old sprite							sta dline2+1
+													; already									lda z80_d
+													; done										sta dline1+2
+													; above										sta dline2+2
+													; not needed								stx xtmp
+			clrb									; vertical lines drawn					ldx #0				; vertical lines.
+SSpri0											;											sspri0:
+			jsr	DLine							; draw a line								jsr dline			; draw a line.
+													; not needed								cpx #16				; detect block boundery
+													; not needed								bne :+				; skip if not
+													; not needed								inc scraddr+1		; jump to next blockline
+													; not needed								:
+			cmpb	#32							; got to sprite end?						cpx #32				; check finished
+													;	IF BFLAG									; big sprites(16x24)						.if bflag
+													;			bne	2f								; not, skip next two						bne :+				; skip if not
+													;			inc	<reg_H						; point to next new blockline			inc scraddr+1		; jump to next blockline
+													;			inc	<esp_H						; point to next old blockline			inc z80_hlp+1		; jump to next blockline
+													;2													;											:
+													;			cmpb	#48							; got to big sprite end?				cpx #48				; check finished
+													;	ENDIF											;											.endif
+			bne	SSpri0						; not yet, do next line					bne sspri0			; no, repeat
+													; not needed								ldx xtmp
+			rts									; return										rts
+;-----------------------------------------------------------------		;-----------------------------------------------------------------
+; Here reg X arrives as reg_IX (sprite pointer)
+;-----------------------------------------------------------------		;-----------------------------------------------------------------
+SSpriB											;											ssprib:
+			jsr	GSprAN						; get new sprite address				jsr gspran 			; get new sprite address.
+													; returns reg_BC=right-left byte mask 
+													; and reg_DE=spriteframe address
+			jmp	SSpri2						; go draw it								jmp sspri2
+;-----------------------------------------------------------------		;-----------------------------------------------------------------
+; interchanges contents of registers BC and HL with their mirrors (Z80 exx opcode)
+;-----------------------------------------------------------------		;-----------------------------------------------------------------
+do_rexx	pshs	x								; save register							exx:
+			ldx	<reg_BC						; get register BC							lda z80_c
+			stx	<esp_BC						; put register into mirror				sty z80_c
+			ldx	<reg_HL						; get register HL							lda scraddr
+			stx	<esp_HL						; put register into mirror				sty scraddr
+			puls	x,pc							; restore registers and return		rts
+;-----------------------------------------------------------------		;-----------------------------------------------------------------
+; regY is used as pointer to 'old' sprite
+; regU is used as pointer to 'new' sprite
+; So no need for self modifying code
+;-----------------------------------------------------------------		;-----------------------------------------------------------------
+SSpriC											;											sspric:
+			jsr	GSprAd						; get old sprite address				jsr gsprad 			; get old sprite address.
+													; returns reg_BC=right-left byte mask 
+													; and reg_DE=spriteframe address
+			stx	<reg_HL						; save screen address						
+;;O			ldd	<reg_DE						; get address								lda z80_e
+;;O			std	DdLine1+1					; modify code								sta ddline1+1		; Set spritedata address
+			ldy	<reg_DE						; get address								lda z80_e
+;;O			std	DdLine2+1					; for old sprite delete					sta ddline2+1
+													; already									lda z80_d
+													; done										sta ddline1+2
+													; above										sta ddline2+2
+			jsr	do_rexx						; save old sprite pointers				jsr exx  			; store addresses.
+			jsr	GSprAN						; get new sprite address				jsr gspran 			; get new sprite addresses.
+			stx	<reg_HL						; save screen address						
+;;O			ldd	<reg_DE						; get address								lda z80_e
+;;O			std	DLine1+1						; modify code								sta dline1+1		; Set spritedata address
+			ldu	<reg_DE						; get address								lda z80_e
+;;O			std	DLine2+1						; for new sprite draw					sta dline2+1
+													; already									lda z80_d
+													; done										sta dline1+2
+													; above										sta dline2+2
+													; not needed								stx xtmp
+			clrb									; vertical lines drawn					ldx #0				; vertical lines.
+Lloop												;											lloop:
+			jsr	DLine							; draw a line of new sprite			jsr dline 			; draw a line.
+													;												dex
+			subb	#2								; decrement counter twice				dex
+			jsr	DdLine						; draw, so delete old sprite line	jsr ddline 			; delete a line.
+													; not needed								cpx #16				; detect block boundery
+													; not needed								bne :+				; skip if not
+													; not needed								inc scraddr+1		; jump to next blockline
+													; not needed								inc z80_hlp+1		; jump to next blockline
+													; not needed							:
+			cmpb	#32							; got to sprite end?						cpx #32				; check finished
+													;	IF BFLAG									; big sprites(16x24)						.if bflag
+													;			bne	4f								; not, skip next two						bne :+				; skip if not
+													;			inc	<reg_H						; point to next new blockline			inc scraddr+1		; jump to next blockline
+													;			inc	<esp_H						; point to next old blockline			inc z80_hlp+1		; jump to next blockline
+													;4													;											:
+													;			cmpb	#48							; got to big sprite end?				cpx #48				; check finished
+													;	ENDIF											;											.endif
+			bne	Lloop							; not yet, do next line					bne lloop			; no, repeat
+			rts									; return										rts
+;-----------------------------------------------------------------		;-----------------------------------------------------------------
+; must preserve 6809 register B (number of drawn lines counter)
+; so regB = Atom reg X.  Atom reg Y is not used
+; regU is used as a discretional pointer, so saved/restored too
+;-----------------------------------------------------------------		;-----------------------------------------------------------------
+DLine		
+;;T			pshs	u								; save working register				dline:
+			ldx	<reg_HL						; get screen Address for new sprite
+			cmpx	#$e600						; is it out of screen?
+			bcc	DLine1						; no, draw it
+			incb									; increment counter
+			bra	DLEx01						; exit
+													; not used									ldy sprline,x		; point to screenleft
+DLine1											;											dline1:
+;;T			ldu	#$0000						; data will be overwritten				lda objdta,x		; fetch spriteleft byte
+													; to point to sprite data
+			lda	b,u							; get byte at this offset
+			sta	<reg_AF						; save read byte							sta z80_a			; save spriteright byte
+													; not used									ldy ytmp
+													; regA already has read byte			lda z80_a
+			anda	<reg_C						; mask left									and z80_c			; mask left
+			eora	,x								; merge bits								eor (scraddr),y	; merge with screenleft
+			sta	,x								; update screen							sta (scraddr),y	; write screenleft
+SLine												;											sline:
+			incb									; increment Atom x (sprite byte)		inx					; next spritebyte
+													; not needed								iny					; point to screenmiddle
+DLine2											;											dline2:
+;;O			ldu	#$0000						; data will be overwritten				lda objdta,x		; fetch spritemiddle byte
+													; to point to sprite data
+			lda	b,u							; get byte at this offset
+			eora	1,x							; merge bits								eor (scraddr),y	; merge with screenmiddle
+			sta	1,x							; update screen							sta (scraddr),y	; write screenmiddle
+SLine2											;											sline2:
+													; not needed								iny					; point to screenright	
+			lda	<reg_AF						; get saved read byte					lda z80_a			; fetch spriteright byte
+			anda	<reg_B						; mask right								and z80_b			; mask right
+			eora	2,x							; merge bits								eor (scraddr),y	; merge with screenright
+			sta	2,x							; update screen							sta (scraddr),y	; write screenright
+SLine3											;											sline3:
+			leax	32,x							; point to next row
+			stx	<reg_HL						; update screen pointer
+DLEx01	incb									; increment Atom x (sprite byte)		inx					; next spritebyte
+;;T			puls	u,pc							; restore register and return			rts
+			rts									; return										rts
+;-----------------------------------------------------------------		;-----------------------------------------------------------------
+; must preserve 6809 register B (number of drawn lines counter)
+; so regB = Atom reg X.  Atom reg Y is not used
+; regU is used as a discretional pointer, so saved/restored too
+;-----------------------------------------------------------------		;-----------------------------------------------------------------
+DdLine	
+;;T			pshs	u								; save working register				ddline:
+			ldx	<esp_HL						; get screen Address for old sprite
+			cmpx	#$e600						; is it out of screen?
+			bcc	DdLine1						; no, draw line
+			incb									; increment counter
+			bra	DdLEx01						; exit
+													; not used									ldy sprline,x		; point to screenleft
+DdLine1											;											ddline1:
+;;T			ldu	#$0000						; data will be overwritten				lda objdta,x		; fetch spriteleft byte
+													; to point to sprite data
+;;T			lda	b,u							; get byte at this offset
+			lda	b,y							; get byte at this offset
+			sta	<reg_AF						; save read byte							sta z80_a			; save spriteright byte
+													; not used									ldy ytmp
+													; regA already has read byte			lda z80_a
+			anda	<esp_C						; mask left									and z80_cp			; mask left
+			eora	,x								; merge bits								eor (z80_hlp),y	; merge with screenleft
+			sta	,x								; update screen							sta (z80_hlp),y	; write screenleft
+DsLine											;											dsline:
+			incb									; increment Atom x (sprite byte)			inx					; next spritebyte
+													; not needed								iny					; point to screenmiddle
+DdLine2											;											ddline2:
+;;O			ldu	#$0000						; data will be overwritten				lda objdta,x		; fetch spritemiddle byte
+													; to point to sprite data
+;;O			lda	b,u							; get byte at this offset
+			lda	b,y							; get byte at this offset
+			eora	1,x							; merge bits								eor (z80_hlp),y	; merge with screenmiddle
+			sta	1,x							; update screen							sta (z80_hlp),y	; write screenmiddle
+DsLine2											;											dsline2:
+													; not needed									iny					; point to screenright	
+			lda	<reg_AF						; get saved read byte					lda z80_a			; fetch spriteright byte
+			anda	<esp_B						; mask right								and z80_bp			; mask right
+			eora	2,x							; merge bits								eor (z80_hlp),y	; merge with screenright
+			sta	2,x							; update screen							sta (z80_hlp),y	; write screenright
+DsLine3											;											dsline3:
+			leax	32,x							; point to next row
+			stx	<esp_HL						; update screen pointer
+DdLEx01	incb									; increment Atom x (sprite byte)		inx					; next spritebyte
+;;T			puls	u,pc							; restore register and return			rts
+			rts									; return										rts
+; ------------------------------------------------------------------		;----------------------------------------------------------------------
+; Line drawn, now work out next target address.									; Line drawn, now work out next target address.
+;------------------------------------------------------------------		;----------------------------------------------------------------------
+;;TNLine												;											nline:
+;;T													;												clc
+;;T			ldd	<reg_HL						; get screen address						lda scraddr 		; get low byte of address.
+;;T			addd	#$20							; add 32 to go byte below				adc #$20
+;;T			cmpa	#$fe							; end of screen?
+;;T			bcs	NLEx01						; no, skip next
+;;T			lda	#$80							; point to ROM (now in RAM)
+;;TNLEx01	std	<reg_HL						; update pointer							sta scraddr 		; new low byte of address.
+;;T													;												bcc :+
+;;T													;												inc scraddr+1 		; new high byte of address.
+;;T													;											:
+;;T			rts									; return										rts
+;-----------------------------------------------------------------		;-----------------------------------------------------------------
 ; Animates a sprite																					; Animates a sprite.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-AnimSp0	clra									; added to reduce bytes in scripts
 AnimSp																									; animsp ld hl,frmno         ; game frame.
-			anda	<frmNo																					; 		 and (hl)            ; is it time to change the frame?
+			anda	<frmNo																				; 		 and (hl)            ; is it time to change the frame?
 			bne	AnimSpex																				; 		 ret nz              ; not this frame.
 			ldy	<reg_IX
 			lda	6,y																					; 		 ld a,(ix+6)         ; sprite image.
@@ -3721,7 +3918,7 @@ IFall		lda	13,y																					; ifall  ld a,(ix+13)        ; jump pointer 
 			bne	IFallEx																				; 		 ret nz              ; if set, we're already in the air.
 			ldd	8,y							; inverted HL for dispX							; 		 ld h,(ix+9)         ; y coordinate.
 			adda	#16																					; 		 ld a,16             ; look down 16 pixels.
-			std	<dispX							; into dispXY										; 		 add a,(ix+8)        ; add x coordinate.
+			std	<dispX						; into dispXY										; 		 add a,(ix+8)        ; add x coordinate.
 			exg	a,b							; invert bytes										; 		 ld l,a              ; coords in hl.
 			tfr	d,x							; to regX											; 		 ld (dispx),hl       ; set up test coordinates.
 			stx	<reg_HL						; and to pseudo register
@@ -3837,7 +4034,7 @@ ISpr3		jsr	CpSp							; Do copy sprite to destination				; ispr3  call cpsp     
 			bne	ISpr2							; not yet done? loopback						; 		 djnz ispr2          ; one less space in the table.
 			rts									; return												; 		 ret
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; Initialise sprites - but not player, we're keeping the old one.
+; Initialise sprites - but not player, we're keeping the old one						; Initialise sprites - but not player, we're keeping the old one.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 KSpr		ldb	#NUMSPR																				; kspr   ld b,NUMSPR         ; sprite slots in table.
 			ldy	#sprTab																				; 		 ld ix,sprtab        ; sprite table.
@@ -3937,9 +4134,10 @@ Evis0		jsr	Evnt09						; perform event									; evis0  call evnt09         ; pe
 																											; 		 ret
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 																											; Effects code.
-																											; Ticker routine is called 25 times per second.
+; Carefull one every two interrupts!															; Ticker routine is called 25 times per second.
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; scrly  ret
+; TO BE CONVERTED - Only used one code line!
+Scrly		rts																							; scrly  ret
 																											; 		 defw txtscr         ; get screen address.
 																											; 		 ld b,8              ; 8 pixel rows.
 																											; 		 push hl             ; store screen address.
@@ -4125,10 +4323,6 @@ ExitGame	clr	$71							; set cold restart
 ;  changed to avoid last ROM call. Now 1st RAM page is free for variables!!
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ReadK		jsr	[$A000]
-;;A			clr	$ff02							; read all columns
-;;A			lda	$ff00							; get result
-;;A			ora	#$80							; bit 7 not relevant
-;;A			coma									; convert a press (value 0) to value 1
 			rts									; return
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; Sets the graphic Mode and points to the graph page beginning
@@ -4203,8 +4397,14 @@ do_exx	pshs	x,u							; save registers
 			stu	<reg_HL						; put mirror into register
 			puls	x,u,pc						; restore registers and return
 ; --------------------------------------------------------------------------------------------------------------------------------------------------------------------
-SetVars	ldx	#valTable					; point to values table
-			ldy	#scNo							; point to first variable to be set
+SetVars	ldx	#$0000						; poit to the beginning of variables - pointers
+			ldb	#NUMVAR						; set counter
+			clra									; create a 
+SetMore	sta	,x+							; initialize 1 byte
+			decb									; got past end?
+			bne	SetMore						; no, loop
+			ldx	#valTable					; point to values table
+			ldy	#wnTopX						; point to first variable to be set
 			ldb	#(endTabV-valTable)/2	; 10 words to be copied
 GetVVal	ldu	,x++							; get one word	
 			stu	,y++							; put into two variables or a pointer	
@@ -4214,122 +4414,13 @@ GetVVal	ldu	,x++							; get one word
 ; --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ; Initial values to be assigned to some variables 
 ; --------------------------------------------------------------------------------------------------------------------------------------------------------------------
-valTable	fcb	$00,$ff,$03,254,34,WINDOWTOP						; scNo,varOpt,numLif,varObj,roomTb,winTop
-			fcb	WINDOWLFT,WINDOWHGT,WINDOWWID,NUMOBJ   		; winLft,winHgt,winWid,numOb
-			fdb	frmLst,chgFx,bProp,scDat,nmeDat,$ff00			; frmPtr,blkPtr,proPtr,scrPtr,nmePtr,andeor
+valTable	fcb	8*WINDOWTOP,8*WINDOWLFT,WINDOWTOP*8+WINDOWHGT*8-16		; wnTopX,wnLftX,wnBotX
+			fcb	WINDOWLFT*8+WINDOWWID*8-16										; wnRgtX
+			fcb	$00,$ff,$03,255,254,34,WINDOWTOP								; scNo,varOpt,numLif,varRnd,varObj,roomTb,winTop
+			fcb	WINDOWLFT,WINDOWHGT,WINDOWWID,NUMOBJ,$00 					; winLft,winHgt,winWid,numOb,unusedByNow
+			fdb	frmLst,chgFx,bProp,scDat,nmeDat,$ff00						; frmPtr,blkPtr,proPtr,scrPtr,nmePtr,andeor
 endTabV	equ	*
 ; --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 EndMotor	equ	*
 MotorLen	equ	EndMotor-Start
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-; ------------------------------------------------------------------------------------------------------------------------------------------
-;													DATA AND CODE PARTICULAR TO THE GAME *** FOGGY ***
-; ------------------------------------------------------------------------------------------------------------------------------------------
-GameData	equ	*																						; Everything below here will be generated by the editors.
-;																											; Sounds.
-;																											; fx1    defb 128+15         ; volume and mixer.
-;																											; 		 defb 31             ; white noise.
-;																											; 		 defw 1000           ; tone register.
-;																											; 		 defb 128+15         ; volume and mixer.
-;																											; 		 defb 25             ; white noise.
-;																											; 		 defw 1000           ; tone register.
-;																											; 		 defb 128+14         ; volume and mixer.
-;																											; 		 defb 19             ; white noise.
-;																											; 		 defw 1000           ; tone register.
-;																											; 		 defb 128+13         ; volume and mixer.
-;																											; 		 defb 13             ; white noise.
-;																											; 		 defw 1000           ; tone register.
-;																											; 		 defb 128+12         ; volume and mixer.
-;																											; 		 defb 7              ; white noise.
-;																											; 		 defw 1000           ; tone register.
-;																											; 		 defb 128+11         ; volume and mixer.
-;																											; 		 defb 0              ; white noise.
-;																											; 		 defw 1000           ; tone register.
-;																											; 		 defb 128+10         ; volume and mixer.
-;																											; 		 defb 6              ; white noise.
-;																											; 		 defw 1000           ; tone register.
-;																											; 		 defb 128+8          ; volume and mixer.
-;																											; 		 defb 12             ; white noise.
-;																											; 		 defw 1000           ; tone register.
-;																											; 		 defb 128+6          ; volume and mixer.
-;																											; 		 defb 18             ; white noise.
-;																											; 		 defw 1000           ; tone register.
-;																											; 		 defb 128+3          ; volume and mixer.
-;																											; 		 defb 24             ; white noise.
-;																											; 		 defw 1000           ; tone register.
-;																											; 		 defb 255
-; ------------------------------------------------------------------------------------------------------------------------------------------
-;																											; fx2    defb 064+15         ; volume and mixer.
-;																											; 		 defb 27             ; white noise.
-;																											; 		 defw 1000           ; tone register.
-;																											; 		 defb 064+14         ; volume and mixer.
-;																											; 		 defb 31             ; white noise.
-;																											; 		 defw 2000           ; tone register.
-;																											; 		 defb 064+13         ; volume and mixer.
-;																											; 		 defb 28             ; white noise.
-;																											; 		 defw 3000           ; tone register.
-;																											; 		 defb 064+12         ; volume and mixer.
-;																											; 		 defb 31             ; white noise.
-;																											; 		 defw 2000           ; tone register.
-;																											; 		 defb 064+11         ; volume and mixer.
-;																											; 		 defb 29             ; white noise.
-;																											; 		 defw 1000           ; tone register.
-;																											; 		 defb 064+10         ; volume and mixer.
-;																											; 		 defb 31             ; white noise.
-;																											; 		 defw 2000           ; tone register.
-;																											; 		 defb 064+9          ; volume and mixer.
-;																											; 		 defb 30             ; white noise.
-;																											; 		 defw 3000           ; tone register.
-;																											; 		 defb 064+8          ; volume and mixer.
-;																											; 		 defb 31             ; white noise.
-;																											; 		 defw 2000           ; tone register.
-;																											; 		 defb 064+7          ; volume and mixer.
-;																											; 		 defb 31             ; white noise.
-;																											; 		 defw 1000           ; tone register.
-;																											; 		 defb 064+6          ; volume and mixer.
-;																											; 		 defb 31             ; white noise.
-;																											; 		 defw 2000           ; tone register.
-;																											; 		 defb 255
-; ------------------------------------------------------------------------------------------------------------------------------------------
-;																											; fx3    defb 064+15         ; volume and mixer.
-;																											; 		 defb 0              ; white noise.
-;																											; 		 defw 4000           ; tone register.
-;																											; 		 defb 064+15         ; volume and mixer.
-;																											; 		 defb 0              ; white noise.
-;																											; 		 defw 4100           ; tone register.
-;																											; 		 defb 064+14         ; volume and mixer.
-;																											; 		 defb 0              ; white noise.
-;																											; 		 defw 4200           ; tone register.
-;																											; 		 defb 064+14         ; volume and mixer.
-;																											; 		 defb 0              ; white noise.
-;																											; 		 defw 4300           ; tone register.
-;																											; 		 defb 064+13         ; volume and mixer.
-;																											; 		 defb 0              ; white noise.
-;																											; 		 defw 4400           ; tone register.
-;																											; 		 defb 064+13         ; volume and mixer.
-;																											; 		 defb 0              ; white noise.
-;																											; 		 defw 4500           ; tone register.
-;																											; 		 defb 064+12         ; volume and mixer.
-;																											; 		 defb 0              ; white noise.
-;																											; 		 defw 4600           ; tone register.
-;																											; 		 defb 064+12         ; volume and mixer.
-;																											; 		 defb 0              ; white noise.
-;																											; 		 defw 4700           ; tone register.
-;																											; 		 defb 064+11         ; volume and mixer.
-;																											; 		 defb 0              ; white noise.
-;																											; 		 defw 4800           ; tone register.
-;																											; 		 defb 064+10         ; volume and mixer.
-;																											; 		 defb 0              ; white noise.
-;																											; 		 defw 4900           ; tone register.
-;																											; 		 defb 255
-; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; 		 defb 99             ; temporary marker.
-; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; User routine.  Put your own code in here to be called with USER instruction.
-																											; if USER has an argument it will be passed in the accumulator.
-; ------------------------------------------------------------------------------------------------------------------------------------------
-																											; user   ret

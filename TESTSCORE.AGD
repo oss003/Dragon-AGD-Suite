@@ -111,7 +111,7 @@ DEFINEFONT      0 0 0 0 0 0 0 0
 ; Block 0
 
 DEFINEBLOCK     EMPTYBLOCK      ; property
-                0 0 0 0 0 0 0 0 71                                      ; Spectrum.
+                0 0 0 0 0 0 0 0 56                                      ; Spectrum.
 
 ; Sprites
 ; First argument defines the number of frames
@@ -154,7 +154,7 @@ DEFINESCREEN
 ; SPRITEPOSITION requires 4 numbers for image, type, Y coordinate and X coordinate in that order
 ; Coordinates are based on Spectrum screen, even for CPC so need to change for conversions
 
-SPRITEPOSITION 66,0,88,128
+SPRITEPOSITION 0,0,88,128
 
 
 ; Define objects
@@ -164,7 +164,7 @@ SPRITEPOSITION 66,0,88,128
 ; Coordinates are based on Spectrum screen, even for CPC so need to change for conversions
 
 ; Spectrum:
-DEFINEOBJECT    0,0,160,32     ; attribute, room, Y, X
+DEFINEOBJECT    56,0,160,32     ; attribute, room, Y, X
                 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
                 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 ; Map.
@@ -201,31 +201,46 @@ EVENT SPRITETYPE8
 EVENT INITSPRITE
 
 EVENT MAINLOOP1
- PRINTMODE1
- AT 1 1
- PRINT "RANDOM TEST:"
- PRINTMODE0
+ AT 0 1
+ PRINTMODE 1
+ PRINT "TEST SCORE: "
+ PRINTMODE 0
 
- GETRANDOM 10
- AT 4 1
- PRINT "GETRANDOM  0- 9: "
- DISPLAY RND
- PRINT "  "
+  REPEAT 30
+   AT 3,2
+   PRINT "SCORE   BONUS   HIGH"
+   AT 4,1
+   SHOWSCORE 
+   AT 5,2
+   SHOWSCORE 5
+   AT 6,3
+   SHOWSCORE 4
+   AT 7,4
+   SHOWSCORE 3
+   AT 8,5
+   SHOWSCORE 2
+   AT 9,6
+   SHOWSCORE 1
+   SCORE 11
 
- GETRANDOM 10
- AT 6 1
- PRINT "GETRANDOM 10-19: "
- ADD 10 TO RND
- DISPLAY RND
- PRINT "  "
+   AT 4,9
+   SHOWBONUS 
+   AT 5,10
+   SHOWBONUS 5
+   AT 6,11
+   SHOWBONUS 4
+   AT 7,12
+   SHOWBONUS 3
+   AT 8,13
+   SHOWBONUS 2
+   AT 9,14
+   SHOWBONUS 1
+   BONUS 5
+   DELAY 10
 
- GETRANDOM 255
- AT 8 1
- PRINT "GETRANDOM 0-255: "
- DISPLAY RND
- PRINT "  "
+  ENDREPEAT
 
- PLOT RND,150
+  NEXTLEVEL
 
 EVENT MAINLOOP2
 
@@ -245,5 +260,22 @@ EVENT LOSTGAME
 EVENT COMPLETEDGAME
 
 EVENT NEWHIGHSCORE
+   AT 4,16
+   SHOWHIGH 
+   AT 5,17
+   SHOWHIGH 5
+   AT 6,18
+   SHOWHIGH 4
+   AT 7,19
+   SHOWHIGH 3
+   AT 8,20
+   SHOWHIGH 2
+   AT 9,21
+   SHOWHIGH 1
+
+  AT 11,4
+  PRINT "PRESS KEY TO END"
+  WAITKEY
+
 
 EVENT COLLECTBLOCK

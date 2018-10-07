@@ -235,18 +235,18 @@ EVENT MAINLOOP1
  AT 4 12
  LET L = 4
  IF L >= 5
-   PRINT "NOT OK1"
+   PRINT "NOT OK"
  ELSE
    LET L = 5
-   IF L >= 5
-     LET L = 6
+   IF L>=5
+     LET L=6
      IF L >= 5
        PRINT "OK"
      ELSE
-       PRINT "NOT OK2"
+       PRINT "NOT OK"
      ENDIF
    ELSE
-     PRINT "NOT OK3"
+     PRINT "NOT OK"
    ENDIF
  ENDIF
 
@@ -283,7 +283,7 @@ EVENT MAINLOOP1
  IF L <> 5
    LET L = 5
    IF L<>5
-     PRINT "NOT OK"
+     PRINT "NOT OK2"
    ELSE
      LET L=6
      IF L <> 5
@@ -327,17 +327,17 @@ EVENT MAINLOOP1
  AT 8 12
  LET L = 5
  IF L < 5
-   PRINT "NOT OK1"
+   PRINT "NOT OK"
  ELSE
    LET L = 6
    IF L < 5
-     PRINT "NOT OK2"
+     PRINT "NOT OK"
    ELSE
      LET L = 4
      IF L < 5
        PRINT "OK"
      ELSE
-       PRINT "NOT OK3"
+       PRINT "NOT OK"
      ENDIF
    ENDIF
  ENDIF
