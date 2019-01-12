@@ -3,14 +3,14 @@ AGD suite for converting, compiling and running AGD games on a Dragon/COCO
 
 BAT files for the AGD-CoCoDragonSuite
 
-- - a <name> params   = compile + assemble + create diskimages [+ create folder] into _OK
-- - am       params   = same but for all .AGD files in the directory. Carefull same params for all of them!
+- a <name> params   = compile + assemble + create diskimages [+ create folder] into _OK
+- am       params   = same but for all .AGD files in the directory. Carefull same params for all of them!
 
-- - b <name> params   = compile + assemble + create diskimages
+- b <name> params   = compile + assemble + create diskimages
 
-- - z        params   = [cut/reorder 6912 bytes ZX-SCR files | ALL files +] [create folder +] add to Coco/Dragon disk images
-- - zp       params   = [cut/reorder 6912 bytes ZX-SCR files | ALL files
-- - w                 = split Coco/Dragon disk images to separate destination folders
+- z        params   = [cut/reorder 6912 bytes ZX-SCR files | ALL files +] [create folder +] add to Coco/Dragon disk images
+- zp       params   = [cut/reorder 6912 bytes ZX-SCR files | ALL files
+- w                 = split Coco/Dragon disk images to separate destination folders
 
 btc <name> params = compile + assemble + create diskimages + run Coco emulator
 btd <name> params = compile + assemble + create diskimages + run Dragon emulator
