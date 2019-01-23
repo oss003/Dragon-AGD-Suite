@@ -4,7 +4,7 @@
 ; (C) 2008 - 2018 Jonathan Cauldwell
 ; ZX Spectrum Engine v0.7
 ; converted to 6809 by Pere Serrat
-; debugged and enhanced by Kees van Oss and Pere Serrat - vU8B4 - 2019-01-04
+; debugged and enhanced by Kees van Oss and Pere Serrat - vU8B5 - 2019-01-16
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; Conditional compilation flags
 ; Code is installed if flag is set
@@ -610,9 +610,12 @@ PrsKey																									; prskey call debkey         ; debounce key.
 																											; 		 inc e               ; is it 255?
 			beq	PrsKey						; if no key, loopback							; 		 jr z,prsky0         ; yes, repeat until key pressed.
 													; Debounce keypress.																	; Debounce keypress
-																											; debkey call vsync          ; update scrolling, sounds etc.
-																											; 		 call 654            ; d=shift, e=key.
-																											; 		 inc e               ; is it 255?
+												; added to avoid data loss if after this an
+												; IF KEYn is issued by the designer
+												; affecting UP-DOWN-LEFT-RIGHT-FIRE1-2-3
+			pshs	a								; save pressed keycode							; debkey call vsync          ; update scrolling, sounds etc.
+			jsr	JoyKey						; fill variable joyVal							; 		 call 654            ; d=shift, e=key.
+			puls	a								; restore keycode									; 		 inc e               ; is it 255?
 																											; 		 jr nz,debkey        ; no - loop until key is released.
 			rts									; return												; 		 ret
 ; ------------------------------------------------------------------------------------------------------------------------------------------
