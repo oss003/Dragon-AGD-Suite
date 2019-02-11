@@ -1,13 +1,11 @@
-SETAGD.BAS         603 
-LOADUP.BIN         150 
-SHIFTED.BIN       1033 
-LPM3.BAS           219 
-LPM4.BAS           219 
-SET8K.BAS          551 
-L8KDOS.BIN         197 
-DOS8K.BIN         8201 
-INTRO4.BIN        6153 
-INTRO3.BIN        6153 
-GAMEPM4.BIN      27696 
+GAMEBLK.BIN        329 
+GAMEFNT.BIN        777 
+GAMEINC.BIN      17661 
+GAMENME.BIN         24 
+GAMEOJT.BIN        729 
+GAMESCL.BIN       1481 
+GAMESPR.BIN       1145 
+GAMETXT.BIN        335 
+GAMEWMP.BIN         18 
 
-11 files, 122112 bytes free.
+9 files, 85760 bytes free.

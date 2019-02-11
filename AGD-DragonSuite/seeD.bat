@@ -1,7 +1,6 @@
 @echo off
 if "%2"=="" (
-   echo NO PARAMETER. ACCEPTED 3 OR 4
-   goto end
+   echo NO PARAMETER. WILL USE 4
 )
 
 cd SCREENS
@@ -36,7 +35,11 @@ rem Start DRAGON emulator
  if "%2"=="4" (
     xroar -machine dragon64 -machine-cpu 6809 -extbas d64_1.rom -altbas d64_2.rom -machine-cart dragondos -cart-rom ddos.rom -load SEE.VDK -type RUN"SEE4.BAS\n -force-crc-match -disk-write-back -joy-left 0,0:1:0 -kbd-translate
  ) else (
-    xroar -machine dragon64 -machine-cpu 6809 -extbas d64_1.rom -altbas d64_2.rom -machine-cart dragondos -cart-rom ddos.rom -load SEE.VDK -type RUN"SEE3.BAS\n -force-crc-match -disk-write-back -joy-left 0,0:1:0 -kbd-translate
+    if "%2"=="" (
+        xroar -machine dragon64 -machine-cpu 6809 -extbas d64_1.rom -altbas d64_2.rom -machine-cart dragondos -cart-rom ddos.rom -load SEE.VDK -type RUN"SEE4.BAS\n -force-crc-match -disk-write-back -joy-left 0,0:1:0 -kbd-translate
+    ) else (
+        xroar -machine dragon64 -machine-cpu 6809 -extbas d64_1.rom -altbas d64_2.rom -machine-cart dragondos -cart-rom ddos.rom -load SEE.VDK -type RUN"SEE3.BAS\n -force-crc-match -disk-write-back -joy-left 0,0:1:0 -kbd-translate
+    )
  )
  del SEE.VDK
  del SEE.VDK.bak

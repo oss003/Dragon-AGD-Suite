@@ -1,0 +1,29 @@
+echo off
+Dragondos DELETE %1.VDK GAME.BLK
+Dragondos WRITE %1.VDK GAME.BLK
+
+Dragondos DELETE %1.VDK GAME.INC
+Dragondos WRITE %1.VDK GAME.INC
+
+Dragondos DELETE %1.VDK GAME.NME
+Dragondos WRITE %1.VDK GAME.NME
+
+Dragondos DELETE %1.VDK GAME.OJT
+Dragondos WRITE %1.VDK GAME.OJT
+
+Dragondos DELETE %1.VDK GAME.SCL
+Dragondos WRITE %1.VDK GAME.SCL
+
+Dragondos DELETE %1.VDK GAME.SPR
+Dragondos WRITE %1.VDK GAME.SPR
+
+Dragondos DELETE %1.VDK GAME.TXT
+Dragondos WRITE %1.VDK GAME.TXT
+
+Dragondos DELETE %1.VDK GAME.WMP
+Dragondos WRITE %1.VDK GAME.WMP
+
+Dragondos DELETE %1.VDK GAME.FNT
+Dragondos WRITE %1.VDK GAME.FNT
+
+Dragondos DIR %1.VDK >listing.txt

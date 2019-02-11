@@ -2,29 +2,36 @@
 ============================================================================================================
 a <name> params   = compile + assemble + create diskimages [+ create folder] into _OK
 am       params   = same but for all .AGD files in the directory. Carefull same params for all of them!
-
 b <name> params   = compile + assemble + create diskimages
-
-z        params   = [cut/reorder 6912 bytes ZX-SCR files | ALL files +] [create folder +] add to Coco/Dragon disk images
-zp       params   = [cut/reorder 6912 bytes ZX-SCR files | ALL files
-w                 = split Coco/Dragon disk images to separate destination folders
 
 btc <name> params = compile + assemble + create diskimages + run Coco emulator
 btd <name> params = compile + assemble + create diskimages + run Dragon emulator
 
 cm <name>         = compile C-program + copy to appropriate dir
+
 cv <name> params  = convert snapshot to AGD file. params [b d] (Big, Dither)
+cvd <name> param  = converts one snapshot (applying param and forcing d (dithering))
+cvdm      param   = same as before for all snapshots in folder
 cvm       param   = convert all snapshots (applying same parameter). param [b]
 
+p params          = adds Pannels from Screens to already compiled games disks [3|4][x|d]
+
 see <name> params = shows on a Dragon emulated the selected screen. params [3|4] [x|d]
-seeD <name> param = shows on a Dragon emulated the selected screen. param  [3|4]
+seed <name> 	  = shows on a Dragon emulated the selected screen. if not received, forces param [4]
+
+split <name>      = splits AGD file into pieces and puts them into an VDK same <name>. Carefull will conflict with game disk!!
+spledit <name>    = splits AGD file and starts XRoar to edit the graphic parts
+
+view <name>       = opens Tony Viewer v1 to se the contents of an AGD file
+
+z        params   = [cut/reorder 6912 bytes ZX-SCR files | ALL files +] add to Coco/Dragon disk images
+w                 = split Coco/Dragon disk images from _OK folder to separate destination folders in _TEST
 
 -------------------------------------------------------------------------------------------------------------
 
 - b   can be used to verify the total binary length to determine if params RFLAG, BFLAG are needed
 - btc and btd will be used to verify if the binaries work well on each machine
-- zp  is useful to add headers to a lot of files without moving them (for instance for Aeon v1.1)
-- seeD forces param 2 to de D (dragon)
+- seed forces param 2 to de D (dragon)
 
 Normal Procedure for one game or multiple games:
 - copy the sna file(s) to ..\AGD-DragonSuite

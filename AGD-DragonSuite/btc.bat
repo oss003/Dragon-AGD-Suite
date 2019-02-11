@@ -47,7 +47,7 @@ del %1.VDK.BAK
 del %1.VDK
 
 echo Going to DELETE virtual files
-pause
+rem pause
 cd ..\
 del XRoar\%1.DSK
 del XRoar\%1.VDK

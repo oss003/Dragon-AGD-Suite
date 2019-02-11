@@ -1,4 +1,4 @@
-/* Dragon AGD SCript Compiler      Version U8B4 05/01/2019   */
+/* Dragon AGD SCript Compiler      Version U8B5 16/01/2019   */
 /*
 /*   ZX Spectrum/CPC version written by Jonathan Cauldwell   */
 /*   Atom version written by Kees van Oss 2018               */
