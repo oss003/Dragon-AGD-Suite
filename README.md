@@ -7,8 +7,10 @@ AGD suite for converting, compiling and running AGD games on a Dragon/COCO
 * am       params   = same but for all .AGD files in the directory. Carefull same params for all of them!
 * b <name> params   = compile + assemble + create diskimages
 <br>
+	
 * btc <name> params = compile + assemble + create diskimages + run Coco emulator
 * btd <name> params = compile + assemble + create diskimages + run Dragon emulator
+<br>
 
 * cm <name>         = compile C-program + copy to appropriate dir
 
