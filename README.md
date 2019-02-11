@@ -13,21 +13,27 @@ AGD suite for converting, compiling and running AGD games on a Dragon/COCO
 <br>
 
 * cm <name>         = compile C-program + copy to appropriate dir
+<br>
 
 * cv <name> params  = convert snapshot to AGD file. params [b d] (Big, Dither)
 * cvd <name> param  = converts one snapshot (applying param and forcing d (dithering))
 * cvdm      param   = same as before for all snapshots in folder
 * cvm       param   = convert all snapshots (applying same parameter). param [b]
+<br>
 
 * p params          = adds Pannels from Screens to already compiled games disks [3|4][x|d]
+<br>
 
 * see <name> params = shows on a Dragon emulated the selected screen. params [3|4] [x|d]
 * seed <name> 	  = shows on a Dragon emulated the selected screen. if not received, forces param [4]
+<br>
 
 * split <name>      = splits AGD file into pieces and puts them into an VDK same <name>. Carefull will conflict with game disk!!
 * spledit <name>    = splits AGD file and starts XRoar to edit the graphic parts
+<br>
 
 * view <name>       = opens Tony Viewer v1 to se the contents of an AGD file
+<br>
 
 * z        params   = [cut/reorder 6912 bytes ZX-SCR files | ALL files +] add to Coco/Dragon disk images
 * w                 = split Coco/Dragon disk images from _OK folder to separate destination folders in _TEST
