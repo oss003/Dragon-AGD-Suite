@@ -3,7 +3,7 @@ AGD suite for converting, compiling and running AGD games on a Dragon/COCO
 
 				BAT files for the AGD-CoCoDragonSuite
 ============================================================================================================
-a <name> params   = compile + assemble + create diskimages [+ create folder] into _OK
+* a <name> params   = compile + assemble + create diskimages [+ create folder] into _OK
 am       params   = same but for all .AGD files in the directory. Carefull same params for all of them!
 b <name> params   = compile + assemble + create diskimages
 
