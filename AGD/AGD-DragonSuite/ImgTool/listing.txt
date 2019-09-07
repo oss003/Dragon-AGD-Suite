@@ -1,0 +1,12 @@
+
+Contents of TSTBSLSH.DSK:
+------------------------------  --------  ---------------  ------------------
+SETAGD.BAS                           697              0 B                    
+LOADUP.BIN                           152              2 B                    
+SHIFTED.BIN                         1035              2 B                    
+INTRO4.BIN                          6154              2 B                    
+INTRO3.BIN                          6154              2 B                    
+GAMEPM4.BIN                        15253              2 B                    
+------------------------  ------ ---------------
+       6 File(s)           29445 bytes
+                          119808 bytes free
