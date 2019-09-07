@@ -9,9 +9,9 @@ AGD suite for converting, compiling and running AGD games on a Dragon/COCO
 * btc [name] params = compile + assemble + create diskimages + run Coco emulator
 * btd [name] params = compile + assemble + create diskimages + run Dragon emulator
 
-*cm [name]         = compile C-program + copy to appropriate dir, same name as source file 
- 		     The destination folder must exist in ..\MinGW\sources\)
- 		     and it should contain a file makefile. with the compile command
+* cm [name]         = compile C-program + copy to appropriate dir, same name as source file 
+ 		      The destination folder must exist in ..\MinGW\sources\)
+ 		      and it should contain a file makefile. with the compile command
 
 * cv [version] [name] params  
 		    = convert snapshot to AGD file. 
