@@ -10,11 +10,11 @@ AGD suite for converting, compiling and running AGD games on a Dragon/COCO
 * btd [name] params = compile + assemble + create diskimages + run Dragon emulator
 
 * cm [name]         = compile C-program + copy to appropriate dir, same name as source file<br>
- 		      The destination folder must exist in ..\MinGW\sources\)
+ 		      The destination folder must exist in ..\MinGW\sources\)<br>
  		      and it should contain a file makefile. with the compile command
 
-* cv [version] [name] params = convert snapshot to AGD file. 
-		      [version] should be one of  26, 30, 47 
+* cv [version] [name] params = convert snapshot to AGD file.<br> 
+		      [version] should be one of  26, 30, 47 <br>
 		      [params] [b | d] (Big, Dither)
 
 * mus [VdkFileName] = calls dragon emulator with MPI and GMC module. Starts MUS.BAS<br>
