@@ -1,62 +1,74 @@
 # Dragon-AGD-Suite
 AGD suite for converting, compiling and running AGD games on a Dragon/COCO
 
-				BAT files for the AGD-CoCoDragonSuite
--------------------------------------------------------------------------------------------------------------
-* a <name> params   = compile + assemble + create diskimages [+ create folder] into _OK
-* am       params   = same but for all .AGD files in the directory. Carefull same params for all of them!
-* b <name> params   = compile + assemble + create diskimages
-<br>
-	
-* btc <name> params = compile + assemble + create diskimages + run Coco emulator
-* btd <name> params = compile + assemble + create diskimages + run Dragon emulator
-<br>
+			    BAT files for the AGD-CoCoDragonSuite
+==============================================================================================
+*a <name> params   = compile + assemble + create diskimages [+ create folder] into _OK
+*b <name> params   = compile + assemble + create diskimages (is called by a.bat file)
 
-* cm <name>         = compile C-program + copy to appropriate dir
-<br>
+*btc <name> params = compile + assemble + create diskimages + run Coco emulator
+*btd <name> params = compile + assemble + create diskimages + run Dragon emulator
 
-* cv <name> params  = convert snapshot to AGD file. params [b d] (Big, Dither)
-* cvd <name> param  = converts one snapshot (applying param and forcing d (dithering))
-* cvdm      param   = same as before for all snapshots in folder
-* cvm       param   = convert all snapshots (applying same parameter). param [b]
-<br>
+*cm <name>         = compile C-program + copy to appropriate dir, same name as source file 
+ 		     The destination folder must exist in ..\MinGW\sources\)
+ 		     and it should contain a file makefile. with the compile command
 
-* p params          = adds Pannels from Screens to already compiled games disks [3|4][x|d]
-<br>
+*cv <version> <name> params  
+		   = convert snapshot to AGD file. 
+		     <version> should be one of  26, 30, 47 
+		     params [b | d] (Big, Dither)
 
-* see <name> params = shows on a Dragon emulated the selected screen. params [3|4] [x|d]
-* seed <name> 	  = shows on a Dragon emulated the selected screen. if not received, forces param [4]
-<br>
+*mus <VdkFileName> = calls dragon emulator with MPI and GMC module. Starts MUS.BAS
+		     that calls the compiled binary musical demo
 
-* split <name>      = splits AGD file into pieces and puts them into an VDK same <name>. Carefull will conflict with game disk!!
-* spledit <name>    = splits AGD file and starts XRoar to edit the graphic parts
-<br>
+*p params          = adds Pannels from Screens to game disks already created in OK folder
+		     params [3|4][x|d] for PMode3/4 ZX/Dgn
 
-* view <name>       = opens Tony Viewer v1 to se the contents of an AGD file
-<br>
+*r <name>	   = will start XRoar with a VDK file and start the AGD game. 
+		     the VDK file must exist in main folder AGD-DragonSuite
 
-* z        params   = [cut/reorder 6912 bytes ZX-SCR files | ALL files +] add to Coco/Dragon disk images
-* w                 = split Coco/Dragon disk images from _OK folder to separate destination folders in _TEST
+*rdsk		   = is a bat file associated to .DSK files. Clicking on a DSK starts it
+*rvdk		   = is a bat file associated to .VDK files. Clicking on a VDK starts it
 
--------------------------------------------------------------------------------------------------------------
+*see <name> param  = shows on a Dragon emulated screen the selected image 
+		     param [3|4] If not received, forces value 4
 
-* b   can be used to verify the total binary length to determine if params RFLAG, BFLAG are needed
-* btc and btd will be used to verify if the binaries work well on each machine
-* seed forces param 2 to de D (dragon)
+*spledit <name>    = splits AGD file and starts XRoar to edit the graphic parts
+		     The created disk is named GAMEGFX.VDK and you should better
+		     copy it to another folder, renaming it at your will
 
-Normal Procedure for one game or multiple games:
-* copy the sna file(s) to ..\AGD-DragonSuite
-* use cv <name> to generate the .AGD file for each game
-* modify / correct any known errors in these AGD files
-* use   a <name> params to create a folder in _OK with all the files related to <name> (one game)
-    or  am       params for the same applied to all agd files
-* IF we want a PMODE3 executable, then do
-	a <name> params to add to previously generated disks the PMode 3 binaries
-* to copy all the 'special' intro screens you'd like for these games in *same* PMODE into folder SCREENS
-* use   z [3|4] [x|d] to cut length and/or re-order image from ZX format to 6809 format
+*view <name>       = opens Tony's Viewer v1 to see the contents of an AGD file
+
+*w                 = copies Coco/Dragon disk images from _OK folder to separate destination
+		     in folder _TEST using subfolders \C and \D that *must* exist there
+
+*z        params   = cuts/reorders 6912 bytes ZX-SCR files (names must equal gamename)
+		     and adds to Coco/Dragon disk images as INTRO screen
+
+
+				     PROCEDURE FOR ONE GAME
+==============================================================================================
+1) copy the .sna file to main folder AGD-DragonSuite
+2) use cv <version> <name> [params] to generate the .AGD file
+3) modify / correct the AGD file at your will
+4) to test the game issue command
+  btd or btc <name> <params> so that you can play the game
+5) when you are done, issue the command
+  a <name> params to create a folder in _OK with all the files related to <name>
+
+If we want to add a PMODE3 executable, then use param [G] in previous steps 2-4-5
+	in case you are creating both B/W and Colour, create first the B/W and then the colour one
+	but using the same GameNAME for both versions. You will get only one disk with all the versions 
+	Carefull when archiving with command a because it will overwrite files B/W when processing colour
+	To avoid this you *MUST* rename B/W files appending a suffix to diferentiate them. 
+	For instance gamenameBW and then gamename will be used for the colour files
+To copy an intro screen you'd like to add to a game in *same* PMODE
+  first copy the gamename.scr into folder SCREENS. Name must equal the gamename. Then do
+  z [3|4] [x|d] to cut length and/or re-order image from ZX format to 6809 format
 	These images will be added to the (pre-existent) disks in _OK as INTRO[3|4].BIN
 	If you have screens 6144 length that are *NOT* ZX-like, use param "d", else param "x"
-
-If you want to test all the created disks
-* use   w
-This will copy all of the VDK / DSK files into (pre-existent) subfolders named "D" and "C" respectively
+In case the game needs a Pannel to complete the screen
+  first copy the gamename.pan into folder SCREENS. Name must equal the gamename. Then do
+  p [3|4] [x|d] that will add the pannel into the pre-existent VDK/DSK files for that game
+If you want to test the created disks, send them to _TEST issuing the command 
+  w	This will copy all of the VDK/DSK files into (pre-existent) subfolders named "D" and "C"
