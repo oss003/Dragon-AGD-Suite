@@ -14,8 +14,8 @@ AGD suite for converting, compiling and running AGD games on a Dragon/COCO
  		      and it should contain a file makefile. with the compile command
 
 * cv [version] [name] params = convert snapshot to AGD file. 
-		      <version> should be one of  26, 30, 47 
-		      params [b | d] (Big, Dither)
+		      [version] should be one of  26, 30, 47 
+		      [params] [b | d] (Big, Dither)
 
 * mus [VdkFileName] = calls dragon emulator with MPI and GMC module. Starts MUS.BAS<br>
 		      that calls the compiled binary musical demo
