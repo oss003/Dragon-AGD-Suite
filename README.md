@@ -66,11 +66,11 @@ To copy an intro screen you'd like to add to a game in *same* PMODE<br>
 * first copy the gamename.scr into folder SCREENS. Name must equal the gamename. Then do<br>
 * z [3|4] [x|d] to cut length and/or re-order image from ZX format to 6809 format<br>
 	These images will be added to the (pre-existent) disks in _OK as INTRO[3|4].BIN<br>
-	If you have screens 6144 length that are *NOT* ZX-like, use param "d", else param "x"<br><br>
+	If you have screens 6144 length that are *NOT* ZX-like, use param "d", else param "x"<br>
 	
 In case the game needs a Pannel to complete the screen<br>
 * first copy the gamename.pan into folder SCREENS. Name must equal the gamename. Then do<br>
-* p [3|4] [x|d] that will add the pannel into the pre-existent VDK/DSK files for that game<br><br>
+* p [3|4] [x|d] that will add the pannel into the pre-existent VDK/DSK files for that game<br>
 
 If you want to test the created disks, send them to _TEST issuing the command <br>
 * w	This will copy all of the VDK/DSK files into (pre-existent) subfolders named "D" and "C"<br>
