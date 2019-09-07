@@ -9,37 +9,37 @@ AGD suite for converting, compiling and running AGD games on a Dragon/COCO
 * btc [name] params = compile + assemble + create diskimages + run Coco emulator
 * btd [name] params = compile + assemble + create diskimages + run Dragon emulator
 
-* cm [name]         = compile C-program + copy to appropriate dir, same name as source file 
+* cm [name]         = compile C-program + copy to appropriate dir, same name as source file<br>
  		      The destination folder must exist in ..\MinGW\sources\)
  		      and it should contain a file makefile. with the compile command
 
-* cv [version] [name] params  
+* cv [version] [name] params  <br>
 		    = convert snapshot to AGD file. 
 		      <version> should be one of  26, 30, 47 
 		      params [b | d] (Big, Dither)
 
-* mus [VdkFileName] = calls dragon emulator with MPI and GMC module. Starts MUS.BAS
+* mus [VdkFileName] = calls dragon emulator with MPI and GMC module. Starts MUS.BAS<br>
 		      that calls the compiled binary musical demo
 
-* p params          = adds Pannels from Screens to game disks already created in OK folder
+* p params          = adds Pannels from Screens to game disks already created in OK folder<br>
 		      params [3|4][x|d] for PMode3/4 ZX/Dgn
 
-* r [name]	    = will start XRoar with a VDK file and start the AGD game. 
+* r [name]	    = will start XRoar with a VDK file and start the AGD game. <br>
 		      the VDK file must exist in main folder AGD-DragonSuite
 
 * rdsk		   = is a bat file associated to .DSK files. Clicking on a DSK starts it
 * rvdk		   = is a bat file associated to .VDK files. Clicking on a VDK starts it
 
-* see [name] param  = shows on a Dragon emulated screen the selected image 
+* see [name] param  = shows on a Dragon emulated screen the selected image <br>
 		      param [3|4] If not received, forces value 4
 
-* spledit [name]    = splits AGD file and starts XRoar to edit the graphic parts
-		      The created disk is named GAMEGFX.VDK and you should better
-		      copy it to another folder, renaming it at your will
+* spledit [name]    = splits AGD file and starts XRoar to edit the graphic parts<br>
+		      The created disk is named GAMEGFX.VDK and you should better<br>
+		      copy it to another folder, renaming it at your will<br>
 
 * view [name]       = opens Tony's Viewer v1 to see the contents of an AGD file
 
-* w                 = copies Coco/Dragon disk images from _OK folder to separate destination
+* w                 = copies Coco/Dragon disk images from _OK folder to separate destination<br>
 		      in folder _TEST using subfolders \C and \D that *must* exist there
 
 * z        params   = cuts/reorders 6912 bytes ZX-SCR files (names must equal gamename)
