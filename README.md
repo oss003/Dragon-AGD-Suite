@@ -1,5 +1,6 @@
 # Dragon-AGD-Suite
-AGD suite for converting, compiling and running AGD games on a Dragon/COCO
+AGD suite for converting, compiling and running AGD games on a Dragon/COCO.
+C-files were compiled with MinGW.
 
 			    BAT files for the AGD-CoCoDragonSuite
 ==============================================================================
