@@ -2,52 +2,52 @@
 AGD suite for converting, compiling and running AGD games on a Dragon/COCO
 
 			    BAT files for the AGD-CoCoDragonSuite
-==============================================================================================
+==============================================================================
 * a <name> params   = compile + assemble + create diskimages [+ create folder] into _OK
 * b <name> params   = compile + assemble + create diskimages (is called by a.bat file)
 
-*btc <name> params = compile + assemble + create diskimages + run Coco emulator
-*btd <name> params = compile + assemble + create diskimages + run Dragon emulator
+* btc <name> params = compile + assemble + create diskimages + run Coco emulator
+* btd <name> params = compile + assemble + create diskimages + run Dragon emulator
 
 *cm <name>         = compile C-program + copy to appropriate dir, same name as source file 
  		     The destination folder must exist in ..\MinGW\sources\)
  		     and it should contain a file makefile. with the compile command
 
-*cv <version> <name> params  
-		   = convert snapshot to AGD file. 
-		     <version> should be one of  26, 30, 47 
-		     params [b | d] (Big, Dither)
+* cv <version> <name> params  
+		    = convert snapshot to AGD file. 
+		      <version> should be one of  26, 30, 47 
+		      params [b | d] (Big, Dither)
 
-*mus <VdkFileName> = calls dragon emulator with MPI and GMC module. Starts MUS.BAS
-		     that calls the compiled binary musical demo
+* mus <VdkFileName> = calls dragon emulator with MPI and GMC module. Starts MUS.BAS
+		      that calls the compiled binary musical demo
 
-*p params          = adds Pannels from Screens to game disks already created in OK folder
-		     params [3|4][x|d] for PMode3/4 ZX/Dgn
+* p params          = adds Pannels from Screens to game disks already created in OK folder
+		      params [3|4][x|d] for PMode3/4 ZX/Dgn
 
-*r <name>	   = will start XRoar with a VDK file and start the AGD game. 
-		     the VDK file must exist in main folder AGD-DragonSuite
+* r <name>	    = will start XRoar with a VDK file and start the AGD game. 
+		      the VDK file must exist in main folder AGD-DragonSuite
 
-*rdsk		   = is a bat file associated to .DSK files. Clicking on a DSK starts it
-*rvdk		   = is a bat file associated to .VDK files. Clicking on a VDK starts it
+* rdsk		   = is a bat file associated to .DSK files. Clicking on a DSK starts it
+* rvdk		   = is a bat file associated to .VDK files. Clicking on a VDK starts it
 
-*see <name> param  = shows on a Dragon emulated screen the selected image 
-		     param [3|4] If not received, forces value 4
+* see <name> param  = shows on a Dragon emulated screen the selected image 
+		      param [3|4] If not received, forces value 4
 
-*spledit <name>    = splits AGD file and starts XRoar to edit the graphic parts
-		     The created disk is named GAMEGFX.VDK and you should better
-		     copy it to another folder, renaming it at your will
+* spledit <name>    = splits AGD file and starts XRoar to edit the graphic parts
+		      The created disk is named GAMEGFX.VDK and you should better
+		      copy it to another folder, renaming it at your will
 
-*view <name>       = opens Tony's Viewer v1 to see the contents of an AGD file
+* view <name>       = opens Tony's Viewer v1 to see the contents of an AGD file
 
-*w                 = copies Coco/Dragon disk images from _OK folder to separate destination
-		     in folder _TEST using subfolders \C and \D that *must* exist there
+* w                 = copies Coco/Dragon disk images from _OK folder to separate destination
+		      in folder _TEST using subfolders \C and \D that *must* exist there
 
-*z        params   = cuts/reorders 6912 bytes ZX-SCR files (names must equal gamename)
-		     and adds to Coco/Dragon disk images as INTRO screen
+* z        params   = cuts/reorders 6912 bytes ZX-SCR files (names must equal gamename)
+	 	      and adds to Coco/Dragon disk images as INTRO screen
 
 
 				     PROCEDURE FOR ONE GAME
-==============================================================================================
+================================================================================
 1) copy the .sna file to main folder AGD-DragonSuite
 2) use cv <version> <name> [params] to generate the .AGD file
 3) modify / correct the AGD file at your will
