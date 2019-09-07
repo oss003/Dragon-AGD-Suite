@@ -60,7 +60,7 @@ If we want to add a PMODE3 executable, then use param [G] in previous steps 2-4-
 in case you are creating both B/W and Colour, create first the B/W and then the colour one but using the same GameNAME for both versions. You will get only one disk with all the versions <br><br>
 Carefull when archiving with command a because it will overwrite files B/W when processing colour<br>
 To avoid this you *MUST* rename B/W files appending a suffix to diferentiate them.<br> 
-For instance gamenameBW and then gamename will be used for the colour files<br><br>
+For instance gamenameBW and then gamename will be used for the colour files<br>
 
 To copy an intro screen you'd like to add to a game in *same* PMODE<br>
 * first copy the gamename.scr into folder SCREENS. Name must equal the gamename. Then do<br>
