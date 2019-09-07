@@ -15,7 +15,7 @@ AGD suite for converting, compiling and running AGD games on a Dragon/COCO
 
 * cv [version] [name] params = convert snapshot to AGD file.<br> 
 		      [version] should be one of  26, 30, 47 <br>
-		      [params] [b | d] (Big, Dither)
+		      params [b | d] (Big, Dither)
 
 * mus [VdkFileName] = calls dragon emulator with MPI and GMC module. Starts MUS.BAS<br>
 		      that calls the compiled binary musical demo
@@ -56,10 +56,10 @@ AGD suite for converting, compiling and running AGD games on a Dragon/COCO
   a <name> params to create a folder in _OK with all the files related to [name]
 
 If we want to add a PMODE3 executable, then use param [G] in previous steps 2-4-5<br>
-	in case you are creating both B/W and Colour, create first the B/W and then the colour one but using the same GameNAME for both versions. You will get only one disk with all the versions <br>
-	Carefull when archiving with command a because it will overwrite files B/W when processing colour<br>
-	To avoid this you *MUST* rename B/W files appending a suffix to diferentiate them.<br> 
-	For instance gamenameBW and then gamename will be used for the colour files<br>
+in case you are creating both B/W and Colour, create first the B/W and then the colour one but using the same GameNAME for both versions. You will get only one disk with all the versions <br><br>
+Carefull when archiving with command a because it will overwrite files B/W when processing colour<br>
+To avoid this you *MUST* rename B/W files appending a suffix to diferentiate them.<br> 
+For instance gamenameBW and then gamename will be used for the colour files<br><br>
 To copy an intro screen you'd like to add to a game in *same* PMODE<br>
   first copy the gamename.scr into folder SCREENS. Name must equal the gamename. Then do<br>
   z [3|4] [x|d] to cut length and/or re-order image from ZX format to 6809 format<br>
