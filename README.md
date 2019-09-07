@@ -13,8 +13,7 @@ AGD suite for converting, compiling and running AGD games on a Dragon/COCO
  		      The destination folder must exist in ..\MinGW\sources\)
  		      and it should contain a file makefile. with the compile command
 
-* cv [version] [name] params  <br>
-		    = convert snapshot to AGD file. 
+* cv [version] [name] params = convert snapshot to AGD file. 
 		      <version> should be one of  26, 30, 47 
 		      params [b | d] (Big, Dither)
 
@@ -49,12 +48,12 @@ AGD suite for converting, compiling and running AGD games on a Dragon/COCO
 				     PROCEDURE FOR ONE GAME
 ================================================================================
 1) copy the .sna file to main folder AGD-DragonSuite
-2) use cv <version> <name> [params] to generate the .AGD file
+2) use cv [version] [name] [params] to generate the .AGD file
 3) modify / correct the AGD file at your will
 4) to test the game issue command
   btd or btc <name> <params> so that you can play the game
 5) when you are done, issue the command
-  a <name> params to create a folder in _OK with all the files related to <name>
+  a <name> params to create a folder in _OK with all the files related to [name]
 
 If we want to add a PMODE3 executable, then use param [G] in previous steps 2-4-5<br>
 	in case you are creating both B/W and Colour, create first the B/W and then the colour one but using the same GameNAME for both versions. You will get only one disk with all the versions <br>
